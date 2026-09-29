@@ -96,7 +96,10 @@ box-shadow: 0 12px 30px rgba(0,0,0,0.4); backdrop-filter: blur(8px); font-size: 
 .hero-card-b { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(0,212,255,0.3); transform: rotate(-3deg); margin-top: 22px; }
 .vs-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; background: #1A1330; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 0.9rem; }
 .start-title { font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 3.2rem; line-height: 1.15; text-align: center; margin-bottom: 6px; }
-.start-title .grad-text { background: linear-gradient(135deg, var(--pink), #B44FFF, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+/* כל מילה בכותרת נושאת חלק מהגרדיאנט, כדי שאפשר יהיה להכניס אותן בנפרד. השכבה הראשונה היא פס האור של הפתיח (מחוץ לטקסט במנוחה) */
+.start-title .tw { display: inline-block; background-image: linear-gradient(110deg, rgba(255,255,255,0) 38%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0) 62%), var(--tw-grad); background-size: 300% 100%, 100% 100%; background-repeat: no-repeat; background-position: 130% 0, 0 0; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.start-title .tw-1 { --tw-grad: linear-gradient(135deg, #B44FFF, var(--blue)); }
+.start-title .tw-2 { --tw-grad: linear-gradient(135deg, var(--pink), #B44FFF); }
 .start-sub { color: var(--text-muted); text-align: center; margin-bottom: 32px; font-size: 0.95rem; line-height: 1.4; }
 
 .btn-main { width: 100%; min-height: 52px; padding: 16px 24px; border: none; border-radius: 16px; font-family: 'Heebo', sans-serif; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; transition: transform 0.12s, box-shadow 0.2s, filter 0.2s; position: relative; }
@@ -293,13 +296,102 @@ body { align-items: flex-start; }
 .stats-box { grid-column: 2; }
 }
 
+/* ===== פתיח מסך הבית — Face-off =====
+   body.intro-full = פתיח מלא (כניסה ראשונה בסשן), body.intro-short = גרסה קצרה בחזרה למסך הבית,
+   body.intro-wait = הפתיח ממתין רגע לטעינת הפונט. הכל transform / opacity בלבד. */
+#start-screen.active { animation: none; } /* הפתיח הוא הכניסה של מסך הבית */
+.hero-card { position: relative; }
+.hero-card::after { position: absolute; top: 24%; bottom: 24%; width: 75%; border-radius: 999px; opacity: 0; pointer-events: none; }
+.hero-card-a::after { left: 100%; background: linear-gradient(to right, rgba(255,60,172,0.55), rgba(255,60,172,0)); transform-origin: left center; }
+.hero-card-b::after { right: 100%; background: linear-gradient(to left, rgba(0,212,255,0.55), rgba(0,212,255,0)); transform-origin: right center; }
+.vs-fx { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 9; pointer-events: none; }
+.vs-fx > span { position: absolute; left: 0; top: 0; border-radius: 50%; opacity: 0; }
+.vs-flash { width: 120px; height: 120px; margin: -60px 0 0 -60px; background: radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(214,160,255,0.4) 32%, rgba(180,79,255,0) 68%); }
+.vs-ring { width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 2px solid rgba(255,255,255,0.7); }
+.vs-spark { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background: #FFFFFF; }
+.start-cta::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 26px 6px rgba(180,79,255,0.55); opacity: 0; pointer-events: none; }
+
+/* בנייד: הכרטיסים מתחילים מחוץ למסך. בלי חיתוך, דפדפן נייד מקטין את כל הדף כדי להכיל אותם */
+@media (hover: none), (max-width: 600px) {
+body.intro-full .container, body.intro-short .container { overflow-x: clip; }
+}
+body.intro-wait .bg-glow, body.intro-wait #start-screen, body.intro-wait #start-screen *, body.intro-wait #start-screen *::after { animation-play-state: paused !important; }
+
+/* פתיח מלא (~1.6 שניות) */
+body.intro-full .glow-1 { animation: glowFloat 8s ease-in-out infinite alternate, glowWake 2.7s ease-out both; }
+body.intro-full .glow-2 { animation: glowFloat 8s ease-in-out 4s infinite alternate, glowWake 2.7s ease-out 0.12s both; }
+body.intro-full .hero-card-a { animation: cardInA 1.56s 0.24s both; }
+body.intro-full .hero-card-b { animation: cardInB 1.56s 0.24s both; }
+body.intro-full .hero-card::after { content: ''; animation: cardStreak 1.38s 0.24s ease-out both; }
+body.intro-full .hero-cards { animation: heroImpact 0.66s 1.32s ease-out both; }
+body.intro-full .vs-badge { animation: vsImpact 1.14s 1.26s both; }
+body.intro-full .vs-flash { animation: vsFlash 0.9s 1.32s ease-out both; }
+body.intro-full .vs-ring { animation: vsRing 1.5s 1.38s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+body.intro-full .vs-spark { animation: vsSpark 1.5s 1.38s cubic-bezier(0.2,0.7,0.3,1) forwards; }
+body.intro-full .start-title .tw-1 { animation: wordIn 1.26s 1.86s cubic-bezier(0.2,0.8,0.2,1) both, titleSweep 1.2s 3.18s ease-in-out both; }
+body.intro-full .start-title .tw-2 { animation: wordIn 1.26s 2.16s cubic-bezier(0.2,0.8,0.2,1) both, titleSweep 1.26s 3.36s ease-in-out both; }
+body.intro-full .start-sub { animation: riseIn 1.02s 3s ease-out both; }
+body.intro-full .start-cta { animation: riseIn 1.08s 3.24s cubic-bezier(0.2,0.8,0.2,1) both; }
+body.intro-full .start-cta::after { animation: ctaPulse 1.32s 3.6s ease-out both; }
+body.intro-full #resume-btn { animation: riseIn 1.02s 3.42s ease-out both; }
+
+/* גרסה קצרה (~0.5 שניות) בחזרה למסך הבית באותו סשן */
+body.intro-short .hero-card-a { animation: shortInA 0.34s cubic-bezier(0.2,0.8,0.2,1) both; }
+body.intro-short .hero-card-b { animation: shortInB 0.34s cubic-bezier(0.2,0.8,0.2,1) both; }
+body.intro-short .vs-badge { animation: vsShort 0.3s 0.1s cubic-bezier(0.2,0.8,0.2,1) both; }
+body.intro-short .start-title .tw-1 { animation: riseIn 0.3s 0.08s ease-out both; }
+body.intro-short .start-title .tw-2 { animation: riseIn 0.3s 0.12s ease-out both; }
+body.intro-short .start-sub { animation: riseIn 0.3s 0.14s ease-out both; }
+body.intro-short .start-cta { animation: riseIn 0.3s 0.16s ease-out both; }
+body.intro-short #resume-btn { animation: riseIn 0.3s 0.18s ease-out both; }
+
+@keyframes glowWake { 0% { opacity: 0; } 25% { opacity: 0.12; } 50% { opacity: 0.22; } 100% { opacity: 0.12; } }
+@keyframes cardInA {
+0% { opacity: 0; transform: translateX(65vw) rotate(14deg) scale(0.92); animation-timing-function: cubic-bezier(0.15,0.75,0.3,1); }
+25% { opacity: 1; }
+68% { transform: translateX(-12px) rotate(1.5deg) scale(1.03); animation-timing-function: ease-in-out; }
+86% { transform: translateX(3px) rotate(3.3deg) scale(0.995); }
+100% { opacity: 1; transform: rotate(3deg); }
+}
+@keyframes cardInB {
+0% { opacity: 0; transform: translateX(-65vw) rotate(-14deg) scale(0.92); animation-timing-function: cubic-bezier(0.15,0.75,0.3,1); }
+25% { opacity: 1; }
+68% { transform: translateX(12px) rotate(-1.5deg) scale(1.03); animation-timing-function: ease-in-out; }
+86% { transform: translateX(-3px) rotate(-3.3deg) scale(0.995); }
+100% { opacity: 1; transform: rotate(-3deg); }
+}
+@keyframes cardStreak { 0% { opacity: 0; transform: scaleX(0.5); } 20% { opacity: 0.9; transform: scaleX(1); } 70% { opacity: 0; transform: scaleX(0.2); } 100% { opacity: 0; transform: scaleX(0.2); } }
+@keyframes heroImpact { 0%, 100% { transform: none; } 35% { transform: translateY(3px); } 70% { transform: translateY(-1px); } }
+@keyframes vsImpact {
+0% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); animation-timing-function: cubic-bezier(0.5,0,0.8,0.4); }
+40% { opacity: 1; transform: translate(-50%, -50%) scale(0.86); animation-timing-function: cubic-bezier(0.2,0.8,0.3,1); }
+70% { transform: translate(-50%, -50%) scale(1.08); animation-timing-function: ease-in-out; }
+100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes vsFlash { 0% { opacity: 0; transform: scale(0.3); } 30% { opacity: 0.8; } 100% { opacity: 0; transform: scale(1.5); } }
+@keyframes vsRing { 0% { opacity: 0.9; transform: scale(0.6); } 100% { opacity: 0; transform: scale(3.2); } }
+@keyframes vsSpark { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); } }
+@keyframes wordIn { 0% { opacity: 0; transform: translateY(20px) scale(0.84); filter: brightness(2.2); } 60% { opacity: 1; transform: translateY(-3px) scale(1.03); } 100% { opacity: 1; transform: none; filter: brightness(1); } }
+@keyframes titleSweep { from { background-position: -30% 0, 0 0; } to { background-position: 130% 0, 0 0; } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes ctaPulse { 0% { opacity: 0; transform: scale(0.98); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.06); } }
+@keyframes shortInA { from { opacity: 0; transform: translateX(28px) rotate(6deg); } to { opacity: 1; transform: rotate(3deg); } }
+@keyframes shortInB { from { opacity: 0; transform: translateX(-28px) rotate(-6deg); } to { opacity: 1; transform: rotate(-3deg); } }
+@keyframes vsShort { from { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes introFade { from { opacity: 0; } to { opacity: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
 *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 .bg-glow { animation: none; }
+/* בלי תנועה: רק fade מהיר של המסך הסופי */
+body.intro-full .bg-glow, body.intro-short .bg-glow,
+body.intro-full #start-screen *, body.intro-full #start-screen *::after,
+body.intro-short #start-screen *, body.intro-short #start-screen *::after { animation: none !important; }
+body.intro-full #start-screen, body.intro-short #start-screen { animation: introFade 0.25s ease-out both !important; }
 }
 </style>
 </head>
-<body>
+<body class="intro-full intro-wait">
 <div class="bg-glow glow-1" aria-hidden="true"></div>
 <div class="bg-glow glow-2" aria-hidden="true"></div>
 <canvas id="confetti-canvas" aria-hidden="true"></canvas>
@@ -310,11 +402,22 @@ body { align-items: flex-start; }
 <div class="hero-cards" aria-hidden="true">
 <div class="hero-card hero-card-a">כוח-על לעצור את הזמן ⏱️ אך להזדקן פי 3 מהר יותר מהרגיל</div>
 <div class="hero-card hero-card-b">כוח-על להשתגר לכל מקום 🛸 אך לאבד זיכרון של שבוע לאחור</div>
+<div class="vs-fx">
+<span class="vs-flash"></span><span class="vs-ring"></span>
+<span class="vs-spark" style="--dx:-38px;--dy:-20px;background:var(--pink)"></span>
+<span class="vs-spark" style="--dx:36px;--dy:-24px;background:var(--blue)"></span>
+<span class="vs-spark" style="--dx:-30px;--dy:26px;background:var(--blue)"></span>
+<span class="vs-spark" style="--dx:32px;--dy:22px;background:var(--pink)"></span>
+<span class="vs-spark" style="--dx:0px;--dy:-38px"></span>
+<span class="vs-spark" style="--dx:-2px;--dy:36px"></span>
+<span class="vs-spark" style="--dx:-46px;--dy:2px;background:#C98BFF"></span>
+<span class="vs-spark" style="--dx:46px;--dy:-2px;background:#C98BFF"></span>
+</div>
 <div class="vs-badge">VS</div>
 </div>
-<h1 class="start-title"><span class="grad-text">מה תעדיפו?</span></h1>
+<h1 class="start-title"><span class="tw tw-1">מה</span> <span class="tw tw-2">תעדיפו?</span></h1>
 <div class="start-sub">המהדורה הזוגית המורחבת • 150+ דילמות פסיכולוגיות מאוזנות</div>
-<button type="button" class="btn-main btn-primary" onclick="showScreen('names-screen')">להתחלת המשחק ←</button>
+<button type="button" class="btn-main btn-primary start-cta" onclick="showScreen('names-screen')">להתחלת המשחק ←</button>
 <button type="button" id="resume-btn" class="btn-main btn-ghost" style="display:none" onclick="resumeGame()">⏱️ המשך משחק קודם</button>
 </div>
 
@@ -635,7 +738,7 @@ function showScreen(id) {
 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
 const screen = document.getElementById(id);
 screen.classList.add('active');
-if (id === 'start-screen') updateResumeBtn();
+if (id === 'start-screen') { updateResumeBtn(); playIntro('short'); } else { endIntro(); }
 window.scrollTo(0, 0);
 screen.focus({ preventScroll: true });
 }
@@ -992,6 +1095,58 @@ cCtx.save(); cCtx.globalAlpha = p.alpha; cCtx.fillStyle = p.color; cCtx.beginPat
 requestAnimationFrame(animConf);
 }
 animConf();
+
+/* פתיח מסך הבית (Face-off): מלא בכל טעינה של הדף, קצר בחזרה למסך הבית מתוך המשחק. נגיעה או מקש מדלגים לסוף */
+const INTRO_LENGTH = { full: 5100, short: 550 };
+const INTRO_CTA_AT = { full: 3240, short: 160 }; // מתי כפתור ההתחלה כבר נראה
+let introTimer = null, introStartedAt = 0, introKind = null, introSwallowClickUntil = 0;
+
+function introRunning() {
+return document.body.classList.contains('intro-full') || document.body.classList.contains('intro-short');
+}
+
+function endIntro() {
+clearTimeout(introTimer);
+introTimer = null;
+introKind = null;
+document.body.classList.remove('intro-full', 'intro-short', 'intro-wait');
+}
+
+function startIntroClock(kind) {
+introKind = kind;
+introStartedAt = performance.now();
+introTimer = setTimeout(endIntro, INTRO_LENGTH[kind]);
+}
+
+function playIntro(kind) {
+endIntro();
+void document.body.offsetWidth; // מאפס את האנימציות כדי שירוצו מחדש
+document.body.classList.add(kind === 'full' ? 'intro-full' : 'intro-short');
+startIntroClock(kind);
+}
+
+// דילוג: נגיעה ראשונה מסיימת הכל מיד. אם כפתור ההתחלה עוד לא נראה, הנגיעה לא נחשבת כלחיצה עליו
+document.addEventListener('pointerdown', () => {
+if (!introRunning()) return;
+if (!introKind || performance.now() - introStartedAt < INTRO_CTA_AT[introKind]) introSwallowClickUntil = performance.now() + 600;
+endIntro();
+}, true);
+document.addEventListener('click', e => {
+if (performance.now() < introSwallowClickUntil) { introSwallowClickUntil = 0; e.preventDefault(); e.stopImmediatePropagation(); }
+}, true);
+document.addEventListener('keydown', () => { if (introRunning()) endIntro(); }, true);
+
+(function initIntro() {
+updateResumeBtn();
+// פתיח מלא: ממתינים רגע קצר לפונט של הכותרת (עד 300ms) כדי שלא תתחלף באמצע האנימציה
+const go = () => {
+if (!document.body.classList.contains('intro-wait')) return;
+document.body.classList.remove('intro-wait');
+startIntroClock('full');
+};
+const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+Promise.race([fontsReady, new Promise(r => setTimeout(r, 300))]).then(go);
+})();
 </script>
 
 </body>
