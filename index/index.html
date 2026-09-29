@@ -2,7 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F0A1C">
 <title>מה תעדיפו? — המהדורה המורחבת</title>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -13,7 +14,18 @@
 --purple-bg: #0F0A1C;
 --card-bg: rgba(255, 255, 255, 0.03);
 --card-border: rgba(255, 255, 255, 0.08);
---cat-color: #FF3CAC;
+--text-muted: #A09EB5;
+--text-soft: #B8B6C8;
+--error: #FF8FA8;
+/* צבעי קטגוריות — נפרדים מצבעי השחקנים (ורוד / כחול) */
+--c-day: #FF9F43;
+--c-val: #B794F6;
+--c-hard: #FFCC00;
+--c-food: #FF6B6B;
+--c-travel: #2ECC71;
+--c-work: #D9C3A0;
+--c-scifi: #1ABC9C;
+--cat-color: var(--c-day);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -23,6 +35,7 @@ font-family: 'Rubik', sans-serif;
 background: var(--purple-bg);
 color: #F0F0F8;
 min-height: 100vh;
+min-height: 100dvh;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -30,6 +43,9 @@ overflow-x: hidden;
 touch-action: manipulation;
 position: relative;
 }
+
+:focus-visible { outline: 3px solid #FFFFFF; outline-offset: 3px; }
+.screen:focus, .screen:focus-visible { outline: none; }
 
 .bg-glow {
 position: fixed;
@@ -53,7 +69,7 @@ to { transform: translate(30px, 20px) scale(1.1); }
 .container {
 width: 100%;
 max-width: 460px;
-padding: 20px;
+padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
 position: relative;
 z-index: 1;
 }
@@ -62,212 +78,331 @@ z-index: 1;
 .screen.active { display: flex; animation: screenIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
 @keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ניווט חזרה */
+.screen-nav { width: 100%; display: flex; justify-content: flex-start; margin-bottom: 8px; }
+.btn-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; margin-inline-start: -10px; background: transparent; border: none; border-radius: 12px; color: var(--text-soft); font-family: 'Rubik', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background-color 0.15s; }
+.btn-back:active { background: rgba(255,255,255,0.08); }
+
 /* SCREEN 1: START SCREEN */
-#start-screen { min-height: 80vh; justify-content: center; }
-.hero-cards { position: relative; width: 100%; height: 160px; margin-bottom: 24px; }
+#start-screen { min-height: 80vh; min-height: 80dvh; justify-content: center; }
+.hero-cards { position: relative; width: 100%; display: flex; align-items: flex-start; gap: 16px; padding: 6px 2px 18px; margin-bottom: 18px; }
 .hero-card {
-position: absolute; width: 180px; border-radius: 20px; padding: 16px;
-font-family: 'Heebo', sans-serif; font-weight: 800; min-height: 110px;
+flex: 1 1 0; min-width: 0; border-radius: 20px; padding: 16px 14px;
+font-family: 'Heebo', sans-serif; font-weight: 800; min-height: 110px; line-height: 1.35;
 display: flex; align-items: center; justify-content: center; text-align: center;
 box-shadow: 0 12px 30px rgba(0,0,0,0.4); backdrop-filter: blur(8px); font-size: 0.95rem;
 }
-.hero-card-a { background: linear-gradient(135deg, rgba(255,60,172,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(255,60,172,0.3); right: 5px; top: 10px; transform: rotate(4deg); }
-.hero-card-b { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(0,212,255,0.3); left: 5px; top: 30px; transform: rotate(-4deg); }
-.vs-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; width: 44px; height: 44px; border-radius: 50%; background: #1A1330; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Heebo', sans-serif; font-weight: 900; }
-.start-title { font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 3.2rem; text-align: center; margin-bottom: 6px; }
+.hero-card-a { background: linear-gradient(135deg, rgba(255,60,172,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(255,60,172,0.3); transform: rotate(3deg); }
+.hero-card-b { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(0,212,255,0.3); transform: rotate(-3deg); margin-top: 22px; }
+.vs-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; width: 40px; height: 40px; border-radius: 50%; background: #1A1330; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 0.9rem; }
+.start-title { font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 3.2rem; line-height: 1.15; text-align: center; margin-bottom: 6px; }
 .start-title .grad-text { background: linear-gradient(135deg, var(--pink), #B44FFF, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.start-sub { color: #8C8A9E; text-align: center; margin-bottom: 32px; font-size: 0.95rem; line-height: 1.4; }
+.start-sub { color: var(--text-muted); text-align: center; margin-bottom: 32px; font-size: 0.95rem; line-height: 1.4; }
 
-.btn-main { width: 100%; padding: 16px 24px; border: none; border-radius: 16px; font-family: 'Heebo', sans-serif; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; position: relative; }
+.btn-main { width: 100%; min-height: 52px; padding: 16px 24px; border: none; border-radius: 16px; font-family: 'Heebo', sans-serif; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; transition: transform 0.12s, box-shadow 0.2s, filter 0.2s; position: relative; }
 .btn-primary { background: linear-gradient(135deg, var(--pink), #A040FF, var(--blue)); box-shadow: 0 6px 20px rgba(255,60,172,0.2); }
-.btn-main:active { transform: scale(0.98); }
-.btn-ghost { background: transparent; border: 1px solid rgba(0,212,255,0.25); color: var(--blue); margin-top: 10px; font-size: 0.95rem; }
-.btn-outline-small { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); color: #B2B0C0; font-size: 0.8rem; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
-.btn-outline-small:active { background: rgba(255,255,255,0.08); }
+.btn-main:active { transform: scale(0.97); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,212,255,0.35); color: var(--blue); margin-top: 10px; font-size: 0.95rem; }
+.btn-outline-small { min-height: 44px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.14); color: var(--text-soft); font-family: 'Rubik', sans-serif; font-size: 0.875rem; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: background-color 0.15s, transform 0.1s; }
+.btn-outline-small:active { background: rgba(255,255,255,0.1); transform: scale(0.97); }
+@media (hover: hover) {
+.btn-primary:hover { filter: brightness(1.08); box-shadow: 0 8px 26px rgba(255,60,172,0.3); }
+.btn-ghost:hover, .btn-outline:hover, .btn-outline-small:hover, .btn-back:hover, .skip-btn:hover, .btn-exit:hover { background: rgba(255,255,255,0.06); }
+}
 
 /* GLOBAL SETUP STYLES */
 .setup-title { font-family: 'Heebo', sans-serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 24px; text-align: center;}
+.names-grid { width: 100%; }
 .input-wrap { width: 100%; margin-bottom: 16px; }
-.input-label { display: block; font-size: 0.85rem; font-weight: 700; color: #8C8A9E; margin-bottom: 8px; }
-.input-field { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; font-family: 'Rubik', sans-serif; color: white; outline: none; font-size: 1rem; transition: border-color 0.2s; }
-.input-p1 .input-field:focus { border-color: var(--pink); }
-.input-p2 .input-field:focus { border-color: var(--blue); }
-.input-field:focus { border-color: #B44FFF; }
+.input-label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+.input-field { width: 100%; min-height: 48px; padding: 14px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; font-family: 'Rubik', sans-serif; color: white; outline: none; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+.input-field::placeholder { color: #8C8AA0; }
+.input-field:focus { border-color: #B44FFF; box-shadow: 0 0 0 3px rgba(180,79,255,0.3); }
+.input-p1 .input-field:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,60,172,0.3); }
+.input-p2 .input-field:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.3); }
+.input-field[aria-invalid="true"] { border-color: var(--error); }
+.field-error { display: none; margin-top: 6px; font-size: 0.875rem; font-weight: 700; color: var(--error); }
+.field-error.show { display: block; }
 
 /* SCREEN 3: CATEGORIES & CONFIG */
-.section-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; margin: 12px 0 10px; }
-.section-subtitle { font-size: 0.85rem; font-weight: 700; color: #8C8A9E; }
+.section-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 4px 0 10px; }
+.section-subtitle { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
 .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 16px; }
-.cat-opt { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
+.cat-opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.cat-opt { width: 100%; min-height: 64px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.1s; position: relative; font-family: 'Rubik', sans-serif; color: inherit; }
+.cat-opt:active { transform: scale(0.97); }
 .cat-opt .cat-icon { font-size: 1.2rem; margin-bottom: 2px; display: block; }
-.cat-opt .cat-name { font-size: 0.8rem; font-weight: 700; color: #B2B0C0; }
-.cat-opt.selected { background: rgba(180, 79, 255, 0.12); border-color: #B44FFF; }
+.cat-opt .cat-name { font-size: 0.875rem; font-weight: 700; color: var(--text-soft); }
+.cat-opt.selected { background: rgba(180, 79, 255, 0.14); border-color: #B44FFF; }
 .cat-opt.selected .cat-name { color: #FFF; }
-.cat-opt.selected::after { content: '✓'; position: absolute; top: 4px; left: 8px; font-size: 0.7rem; color: #B44FFF; font-weight: bold; }
+.cat-opt.selected::after { content: '✓'; position: absolute; top: 5px; inset-inline-end: 9px; font-size: 0.85rem; color: #C98BFF; font-weight: bold; }
+.cat-opt.shake { animation: shake 0.3s; }
+@keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.inline-hint { display: none; width: 100%; margin: -6px 0 12px; font-size: 0.875rem; font-weight: 700; color: var(--error); text-align: center; }
+.inline-hint.show { display: block; }
+
+/* כפתורים שנשארים גלויים בתחתית המסך */
+.sticky-actions { position: sticky; bottom: 0; z-index: 5; width: 100%; display: flex; flex-direction: column; gap: 8px; padding-top: 14px; padding-bottom: 4px; background: linear-gradient(to top, var(--purple-bg) 72%, rgba(15,10,28,0)); }
+.sticky-actions .btn-main { margin-top: 0; }
 
 /* SCREEN 4: GAME SCREEN */
-.game-header { width: 100%; margin-bottom: 12px; }
-.progress-track { width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+.game-header { width: 100%; margin-bottom: 10px; }
+.game-topbar { display: flex; align-items: center; gap: 10px; }
+.game-topbar .progress-track { flex: 1; margin-bottom: 0; }
+.progress-track { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--blue)); width: 0%; transition: width 0.3s; }
-.q-counter { text-align: center; font-size: 0.75rem; font-weight: 700; color: #6C6A80; }
+.q-counter { flex: none; font-size: 0.875rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+.btn-exit { flex: none; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.14); color: var(--text-soft); font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s, transform 0.1s; }
+.btn-exit:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
 
-.category-badge { display: inline-flex; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: var(--cat-color); color: #000; margin-bottom: 14px; }
+.category-badge { display: inline-flex; padding: 5px 14px; border-radius: 30px; font-size: 0.875rem; font-weight: 700; background: var(--cat-color); color: #000; margin-bottom: 12px; }
 
 .players-row { display: flex; gap: 8px; width: 100%; margin-bottom: 12px; }
-.p-tag { flex: 1; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.01); border: 1px solid var(--card-border); text-align: center; }
-.p-tag.active-turn.p-pink { border-color: var(--pink); background: rgba(255,60,172,0.06); }
-.p-tag.active-turn.p-blue { border-color: var(--blue); background: rgba(0,212,255,0.06); }
-.p-name { font-size: 0.85rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-status { font-size: 0.7rem; color: #6C6A80; margin-top: 1px; }
-.active-turn.p-pink .p-status { color: var(--pink); font-weight: 700; }
-.active-turn.p-blue .p-status { color: var(--blue); font-weight: 700; }
+.p-tag { flex: 1; min-width: 0; padding: 9px 10px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 2px solid var(--card-border); text-align: center; transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s; }
+.p-tag.active-turn.p-pink { border-color: var(--pink); background: rgba(255,60,172,0.14); box-shadow: 0 0 18px rgba(255,60,172,0.25); }
+.p-tag.active-turn.p-blue { border-color: var(--blue); background: rgba(0,212,255,0.12); box-shadow: 0 0 18px rgba(0,212,255,0.22); }
+.p-name { font-size: 1rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-status { font-size: 0.875rem; color: var(--text-muted); margin-top: 1px; }
+.active-turn .p-status { font-size: 0.95rem; font-weight: 800; }
+.active-turn.p-pink .p-status { color: #FF7CC6; }
+.active-turn.p-blue .p-status { color: var(--blue); }
 
-.q-card { width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+.q-card { width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid var(--card-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); transition: border-color 0.25s, box-shadow 0.25s; }
+/* מסגרת הכרטיס בצבע השחקן שתורו */
+#game-screen[data-turn="1"] .q-card { border-color: rgba(255,60,172,0.75); box-shadow: 0 0 0 4px rgba(255,60,172,0.12), 0 15px 35px rgba(0,0,0,0.3); }
+#game-screen[data-turn="2"] .q-card { border-color: rgba(0,212,255,0.75); box-shadow: 0 0 0 4px rgba(0,212,255,0.12), 0 15px 35px rgba(0,0,0,0.3); }
 
 .opt-btn {
-width: 100%; min-height: 120px; padding: 20px; cursor: pointer;
+width: 100%; min-height: 120px; padding: 28px 20px 12px; cursor: pointer;
 display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
 font-family: 'Rubik', sans-serif; font-size: 1rem; font-weight: 700; line-height: 1.4;
-border: none; color: white; position: relative; background: transparent; transition: background 0.15s;
+border: none; color: white; position: relative; background: transparent; transition: background-color 0.15s, transform 0.1s;
 }
-.opt-btn:active { background: rgba(255,255,255,0.03); }
-.opt-label { position: absolute; top: 10px; right: 14px; font-size: 0.65rem; font-weight: 900; opacity: 0.15; }
+.opt-btn:active { background-color: rgba(255,255,255,0.07); transform: scale(0.985); }
+.opt-btn:focus-visible { outline-offset: -5px; }
+@media (hover: hover) { .opt-btn:hover { background-color: rgba(255,255,255,0.035); } }
+.opt-label { position: absolute; top: 8px; inset-inline-start: 14px; font-size: 0.875rem; font-weight: 900; color: var(--text-muted); }
+.opt-text { display: block; }
 
-.choice-dots { display: flex; gap: 6px; margin-top: 10px; }
-.cdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: background-color 0.15s; }
+/* תגיות שם על התשובה שכל שחקן בחר */
+.choice-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 26px; max-width: 100%; }
+.chip { display: none; max-width: 140px; height: 26px; line-height: 26px; padding: 0 11px; border-radius: 13px; font-size: 0.875rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-p1 { background: var(--pink); color: #1A0F2E; }
+.chip-p2 { background: var(--blue); color: #04232C; }
+.p1-selected-A #opt-a .chip-p1, .p1-selected-B #opt-b .chip-p1,
+.p2-selected-A #opt-a .chip-p2, .p2-selected-B #opt-b .chip-p2 { display: inline-block; animation: chipIn 0.24s cubic-bezier(0.34,1.56,0.64,1) both; }
+@keyframes chipIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
 
-.p1-selected-A #opt-a { background: rgba(255,60,172,0.05); }
-.p1-selected-B #opt-b { background: rgba(255,60,172,0.05); }
-.p1-selected-A #opt-a .cdot.p1-dot, .p1-selected-B #opt-b .cdot.p1-dot { background: var(--pink); box-shadow: 0 0 6px var(--pink); }
+.p1-selected-A #opt-a, .p1-selected-B #opt-b { background: rgba(255,60,172,0.12); }
+.p2-selected-A #opt-a, .p2-selected-B #opt-b { background: rgba(0,212,255,0.12); }
+.p1-selected-A.p2-selected-A #opt-a, .p1-selected-B.p2-selected-B #opt-b { background: linear-gradient(135deg, rgba(255,60,172,0.16), rgba(0,212,255,0.16)); box-shadow: inset 0 0 0 2px rgba(180, 79, 255, 0.55); }
 
-.p2-selected-A #opt-a { background: rgba(0,212,255,0.05); }
-.p2-selected-B #opt-b { background: rgba(0,212,255,0.05); }
-.p2-selected-A #opt-a .cdot.p2-dot, .p2-selected-B #opt-b .cdot.p2-dot { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
-
-.p1-selected-A.p2-selected-A #opt-a { background: linear-gradient(135deg, rgba(255,60,172,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(180, 79, 255, 0.3); }
-.p1-selected-B.p2-selected-B #opt-b { background: linear-gradient(135deg, rgba(255,60,172,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(180, 79, 255, 0.3); }
+/* מעבר קצר בין שאלות */
+.q-card.q-enter .opt-text, .q-card.q-enter .opt-label { animation: qIn 0.22s ease-out both; }
+@keyframes qIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 .or-divider { position: relative; height: 1px; background: var(--card-border); }
-.or-pill { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #140E28; border: 1px solid var(--card-border); color: #5C5A70; font-size: 0.65rem; font-weight: 900; padding: 3px 8px; border-radius: 20px; }
+.or-pill { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #241C3D; border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 0.875rem; font-weight: 900; padding: 2px 10px; border-radius: 20px; }
 
-.skip-btn { background: transparent; border: none; color: #5C5A70; font-size: 0.85rem; margin-top: 12px; cursor: pointer; padding: 6px; }
+.skip-btn { min-height: 44px; padding: 10px 18px; margin-top: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; color: var(--text-soft); font-family: 'Rubik', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background-color 0.15s, transform 0.1s; }
+.skip-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.97); }
 
 /* SCREEN 5: RESULT SCREEN */
-.result-card { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; margin-bottom: 12px; text-align: center; backdrop-filter: blur(10px); }
+.result-card { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
 .score-ring { width: 120px; height: 120px; margin: 0 auto 12px; position: relative; }
 .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring-bg { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 8; }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
 .ring-fill { fill: none; stroke: url(#ringGrad); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1.2s ease-out; }
 .score-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .score-num { font-family: 'Heebo', sans-serif; font-size: 2.3rem; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.score-pct { font-size: 0.7rem; color: #8C8A9E; font-weight: 700; }
+.score-pct { font-size: 0.875rem; color: var(--text-muted); font-weight: 700; }
 .result-names { font-family: 'Heebo', sans-serif; font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
-.result-msg { font-size: 0.85rem; color: #CBCAC0; line-height: 1.4; margin-bottom: 14px; }
+.result-msg { font-size: 0.95rem; color: #CBCAC0; line-height: 1.4; margin-bottom: 14px; }
 
 .stats-box { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 12px; text-align: right; }
-.stats-title { font-size: 0.75rem; font-weight: 700; color: #6C6A80; text-align: center; margin-bottom: 8px; }
-.stat-group { margin-bottom: 6px; display: none; }
-.stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 2px; }
-.stat-label { color: #8C8A9E; }
+.stats-title { font-size: 0.875rem; font-weight: 700; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
+.stat-group { margin-bottom: 8px; display: none; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; margin-bottom: 4px; }
+.stat-label { color: var(--text-soft); }
 .stat-val { font-weight: 700; }
-.stat-bar-track { height: 4px; background: rgba(255,255,255,0.04); border-radius: 2px; width: 100%; overflow: hidden; }
+.stat-bar-track { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; width: 100%; overflow: hidden; }
 .stat-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
 
-.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); margin-top: 8px; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); margin-top: 8px; }
 #confetti-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; }
+
+/* חלון אישור יציאה */
+.exit-dialog { margin: auto; width: min(340px, calc(100% - 32px)); padding: 22px 20px 18px; border-radius: 20px; background: #1A1330; color: #F0F0F8; border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; }
+.exit-dialog::backdrop { background: rgba(8,5,16,0.72); }
+.exit-dialog h2 { font-family: 'Heebo', sans-serif; font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; }
+.exit-dialog p { color: var(--text-soft); font-size: 0.95rem; line-height: 1.45; margin-bottom: 16px; }
+.dialog-actions { display: flex; flex-direction: column; gap: 8px; }
+.dialog-actions .btn-main { margin-top: 0; }
+
+/* טלפונים נמוכים */
+@media (max-height: 640px) {
+#start-screen { min-height: 0; }
+.start-sub { margin-bottom: 22px; }
+.setup-title { font-size: 1.4rem; margin-bottom: 12px; }
+.cat-opt { min-height: 56px; padding: 8px; }
+.cat-grid { gap: 6px; margin-bottom: 12px; }
+.opt-btn { min-height: 100px; padding: 24px 16px 8px; }
+.category-badge { margin-bottom: 10px; }
+.players-row { margin-bottom: 10px; }
+.score-ring { width: 96px; height: 96px; margin-bottom: 8px; }
+.score-num { font-size: 1.9rem; }
+.result-card { padding: 16px; }
+}
+@media (max-width: 360px) {
+.hero-card { font-size: 0.85rem; padding: 14px 12px; }
+.start-title { font-size: 2.8rem; }
+}
+
+/* טלפון לרוחב */
+@media (orientation: landscape) and (max-height: 500px) {
+body { align-items: flex-start; }
+.container { max-width: 720px; padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+#start-screen { min-height: 0; }
+#start-screen > * { max-width: 520px; }
+.hero-cards { margin-bottom: 10px; padding-bottom: 12px; }
+.hero-card { min-height: 0; font-size: 0.85rem; padding: 10px 14px; }
+.hero-card-b { margin-top: 10px; }
+.start-title { font-size: 2.3rem; margin-bottom: 2px; }
+.start-sub { margin-bottom: 14px; }
+.btn-ghost { margin-top: 8px; }
+.screen-nav { margin-bottom: 0; }
+.setup-title { font-size: 1.3rem; margin-bottom: 10px; }
+.names-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cat-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.cat-opt:last-child:nth-child(odd) { grid-column: auto; }
+.cat-opt { min-height: 52px; padding: 6px; }
+.game-header { margin-bottom: 8px; }
+.category-badge { margin-bottom: 6px; }
+.players-row { margin-bottom: 6px; }
+.p-tag { padding: 5px 10px; }
+.q-card { display: flex; flex-direction: row; }
+.opt-btn { flex: 1 1 0; min-width: 0; min-height: 96px; padding: 24px 16px 8px; }
+.or-divider { width: 1px; height: auto; }
+.skip-btn { margin-top: 4px; }
+.result-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 20px; align-items: center; padding: 14px 18px; }
+.score-ring { width: 96px; height: 96px; margin: 0; grid-row: 1 / span 3; align-self: start; }
+.sticky-actions { flex-direction: row; padding-top: 10px; }
+.sticky-actions .btn-main { flex: 1 1 0; min-height: 48px; padding: 10px 16px; font-size: 1rem; }
+.score-num { font-size: 1.9rem; }
+.result-msg { margin-bottom: 8px; }
+.stats-box { grid-column: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+*, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+.bg-glow { animation: none; }
+}
 </style>
 </head>
 <body>
-
-<div class="bg-glow glow-1"></div>
-<div class="bg-glow glow-2"></div>
-<canvas id="confetti-canvas"></canvas>
+<div class="bg-glow glow-1" aria-hidden="true"></div>
+<div class="bg-glow glow-2" aria-hidden="true"></div>
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
 
 <div class="container">
 
-<div id="start-screen" class="screen active">
-<div class="hero-cards">
+<div id="start-screen" class="screen active" tabindex="-1">
+<div class="hero-cards" aria-hidden="true">
 <div class="hero-card hero-card-a">כוח-על לעצור את הזמן ⏱️ אך להזדקן פי 3 מהר יותר מהרגיל</div>
 <div class="hero-card hero-card-b">כוח-על להשתגר לכל מקום 🛸 אך לאבד זיכרון של שבוע לאחור</div>
 <div class="vs-badge">VS</div>
 </div>
-<div class="start-title"><span class="grad-text">מה תעדיפו?</span></div>
+<h1 class="start-title"><span class="grad-text">מה תעדיפו?</span></h1>
 <div class="start-sub">המהדורה הזוגית המורחבת • 150+ דילמות פסיכולוגיות מאוזנות</div>
-<button class="btn-main btn-primary" onclick="showScreen('names-screen')">להתחלת המשחק ←</button>
-<button id="resume-btn" class="btn-main btn-ghost" style="display:none" onclick="resumeGame()">⏱️ המשך משחק קודם</button>
+<button type="button" class="btn-main btn-primary" onclick="showScreen('names-screen')">להתחלת המשחק ←</button>
+<button type="button" id="resume-btn" class="btn-main btn-ghost" style="display:none" onclick="resumeGame()">⏱️ המשך משחק קודם</button>
 </div>
 
-<div id="names-screen" class="screen">
-<div class="setup-title">מי השחקנים? 👥</div>
+<div id="names-screen" class="screen" tabindex="-1">
+<div class="screen-nav"><button type="button" class="btn-back" onclick="showScreen('start-screen')">→ חזרה</button></div>
+<h2 class="setup-title">מי השחקנים? 👥</h2>
 
+<div class="names-grid">
 <div class="input-wrap input-p1">
-<label class="input-label">שחקן/ית א׳ (ורוד)</label>
-<input class="input-field" type="text" id="p1-name" placeholder="שם שחקן 1...">
+<label class="input-label" for="p1-name">שחקן/ית א׳ (ורוד)</label>
+<input class="input-field" type="text" id="p1-name" placeholder="שם שחקן 1..." autocomplete="off" aria-describedby="p1-error">
+<div class="field-error" id="p1-error" role="alert"></div>
 </div>
 <div class="input-wrap input-p2">
-<label class="input-label">שחקן/ית ב׳ (כחול)</label>
-<input class="input-field" type="text" id="p2-name" placeholder="שם שחקן 2...">
+<label class="input-label" for="p2-name">שחקן/ית ב׳ (כחול)</label>
+<input class="input-field" type="text" id="p2-name" placeholder="שם שחקן 2..." autocomplete="off" aria-describedby="p2-error">
+<div class="field-error" id="p2-error" role="alert"></div>
+</div>
 </div>
 
-<button class="btn-main btn-primary" style="margin-top: 14px;" onclick="validateNamesAndContinue()">המשך לבחירת קטגוריות ←</button>
+<div class="sticky-actions">
+<button type="button" class="btn-main btn-primary" onclick="validateNamesAndContinue()">המשך לבחירת קטגוריות ←</button>
+</div>
 </div>
 
-<div id="setup-screen" class="screen">
-<div class="setup-title">הגדרות הסיבוב ⚙️</div>
+<div id="setup-screen" class="screen" tabindex="-1">
+<div class="screen-nav"><button type="button" class="btn-back" onclick="showScreen('names-screen')">→ חזרה</button></div>
+<h2 class="setup-title">הגדרות הסיבוב ⚙️</h2>
 
 <div class="section-header-row">
-<div class="section-subtitle">בחר קטגוריות למשחק:</div>
-<button class="btn-outline-small" id="all-cats-btn" onclick="selectAllCategories()">בחר הכל ✨</button>
+<div class="section-subtitle" id="cat-label">בחר קטגוריות למשחק:</div>
+<button type="button" class="btn-outline-small" id="all-cats-btn" onclick="selectAllCategories()">בחר הכל ✨</button>
 </div>
 
-<div class="cat-grid">
-<div class="cat-opt selected" id="cat-day" onclick="toggleCategory('day')">
-<span class="cat-icon">🍳</span>
+<div class="cat-grid" role="group" aria-labelledby="cat-label">
+<button type="button" class="cat-opt selected" id="cat-day" aria-pressed="true" onclick="toggleCategory('day')">
+<span class="cat-icon" aria-hidden="true">🍳</span>
 <span class="cat-name">חיי יום-יום</span>
-</div>
-<div class="cat-opt selected" id="cat-val" onclick="toggleCategory('val')">
-<span class="cat-icon">🧠</span>
+</button>
+<button type="button" class="cat-opt selected" id="cat-val" aria-pressed="true" onclick="toggleCategory('val')">
+<span class="cat-icon" aria-hidden="true">🧠</span>
 <span class="cat-name">ערכים</span>
-</div>
-<div class="cat-opt selected" id="cat-hard" onclick="toggleCategory('hard')">
-<span class="cat-icon">🌶️</span>
+</button>
+<button type="button" class="cat-opt selected" id="cat-hard" aria-pressed="true" onclick="toggleCategory('hard')">
+<span class="cat-icon" aria-hidden="true">🌶️</span>
 <span class="cat-name">מצבי קיצון</span>
-</div>
-<div class="cat-opt selected" id="cat-food" onclick="toggleCategory('food')">
-<span class="cat-icon">🍕</span>
+</button>
+<button type="button" class="cat-opt selected" id="cat-food" aria-pressed="true" onclick="toggleCategory('food')">
+<span class="cat-icon" aria-hidden="true">🍕</span>
 <span class="cat-name">קולינריה</span>
-</div>
-<div class="cat-opt" id="cat-travel" onclick="toggleCategory('travel')">
-<span class="cat-icon">✈️</span>
+</button>
+<button type="button" class="cat-opt" id="cat-travel" aria-pressed="false" onclick="toggleCategory('travel')">
+<span class="cat-icon" aria-hidden="true">✈️</span>
 <span class="cat-name">טיולים וחוץ</span>
-</div>
-<div class="cat-opt" id="cat-work" onclick="toggleCategory('work')">
-<span class="cat-icon">💼</span>
+</button>
+<button type="button" class="cat-opt" id="cat-work" aria-pressed="false" onclick="toggleCategory('work')">
+<span class="cat-icon" aria-hidden="true">💼</span>
 <span class="cat-name">קריירה וכסף</span>
-</div>
-<div class="cat-opt" id="cat-scifi" onclick="toggleCategory('scifi')">
-<span class="cat-icon">🛸</span>
+</button>
+<button type="button" class="cat-opt" id="cat-scifi" aria-pressed="false" onclick="toggleCategory('scifi')">
+<span class="cat-icon" aria-hidden="true">🛸</span>
 <span class="cat-name">כוחות על ודעש</span>
+</button>
 </div>
-</div>
+<div id="cat-hint" class="inline-hint" role="status"></div>
 
 <div class="input-wrap">
-<label class="input-label">על כמה שאלות תרצו לענות? (1-1000)</label>
+<label class="input-label" for="q-total-input">על כמה שאלות תרצו לענות? (1-1000)</label>
 <input class="input-field" type="number" id="q-total-input" min="1" max="1000" value="20">
 </div>
 
-<button class="btn-main btn-primary" style="margin-top: 14px;" onclick="initGame()">אל המגרש! 🔥</button>
+<div class="sticky-actions">
+<button type="button" class="btn-main btn-primary" onclick="initGame()">אל המגרש! 🔥</button>
+</div>
 </div>
 
-<div id="game-screen" class="screen">
+<div id="game-screen" class="screen" tabindex="-1" data-turn="1">
 <div class="game-header">
-<div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+<div class="game-topbar">
 <div class="q-counter" id="q-count">שאלה 1</div>
+<div class="progress-track" aria-hidden="true"><div id="progress-fill" class="progress-fill"></div></div>
+<button type="button" class="btn-exit" onclick="openExitDialog()" aria-label="יציאה מהמשחק">✕</button>
+</div>
 </div>
 
-<div id="cat-badge" class="category-badge">حיי יום-יום</div>
+<div id="cat-badge" class="category-badge">חיי יום-יום</div>
 
-<div class="players-row">
+<div class="players-row" aria-live="polite">
 <div id="p1-tag" class="p-tag p-pink active-turn">
 <div class="p-name" id="p1-display-name">-</div>
 <div class="p-status" id="p1-status">תורך! 🌸</div>
@@ -279,26 +414,26 @@ border: none; color: white; position: relative; background: transparent; transit
 </div>
 
 <div class="q-card" id="q-card-main">
-<button class="opt-btn" id="opt-a" onclick="handleChoice('A')">
+<button type="button" class="opt-btn" id="opt-a" onclick="handleChoice('A')">
 <span class="opt-label">א׳</span>
-<span id="text-a">...</span>
-<div class="choice-dots"><div class="cdot p1-dot"></div><div class="cdot p2-dot"></div></div>
+<span class="opt-text" id="text-a">...</span>
+<span class="choice-chips"><span class="chip chip-p1"></span><span class="chip chip-p2"></span></span>
 </button>
 <div class="or-divider"><div class="or-pill">או</div></div>
-<button class="opt-btn" id="opt-b" onclick="handleChoice('B')">
+<button type="button" class="opt-btn" id="opt-b" onclick="handleChoice('B')">
 <span class="opt-label">ב׳</span>
-<span id="text-b">...</span>
-<div class="choice-dots"><div class="cdot p1-dot"></div><div class="cdot p2-dot"></div></div>
+<span class="opt-text" id="text-b">...</span>
+<span class="choice-chips"><span class="chip chip-p1"></span><span class="chip chip-p2"></span></span>
 </button>
 </div>
 
-<button class="skip-btn" onclick="nextQuestion()">⏩ דלגו על השאלה</button>
+<button type="button" class="skip-btn" onclick="nextQuestion()">דלגו על השאלה ←</button>
 </div>
 
-<div id="result-screen" class="screen">
+<div id="result-screen" class="screen" tabindex="-1">
 <div class="result-card">
 <div class="score-ring">
-<svg viewBox="0 0 150 150">
+<svg viewBox="0 0 150 150" aria-hidden="true">
 <defs>
 <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
 <stop offset="0%" stop-color="#FF3CAC"/><stop offset="100%" stop-color="#00D4FF"/>
@@ -317,39 +452,50 @@ border: none; color: white; position: relative; background: transparent; transit
 
 <div class="stat-group" id="g-day">
 <div class="stat-row"><span class="stat-label">🍳 חיי יום-יום</span><span class="stat-val" id="s-day-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-day-bar" class="stat-bar-fill" style="background:var(--pink)"></div></div>
+<div class="stat-bar-track"><div id="s-day-bar" class="stat-bar-fill" style="background:var(--c-day)"></div></div>
 </div>
 <div class="stat-group" id="g-val">
 <div class="stat-row"><span class="stat-label">🧠 ערכים ופילוסופיה</span><span class="stat-val" id="s-val-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-val-bar" class="stat-bar-fill" style="background:var(--blue)"></div></div>
+<div class="stat-bar-track"><div id="s-val-bar" class="stat-bar-fill" style="background:var(--c-val)"></div></div>
 </div>
 <div class="stat-group" id="g-hard">
 <div class="stat-row"><span class="stat-label">🌶️ מצבי קיצון</span><span class="stat-val" id="s-hard-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-hard-bar" class="stat-bar-fill" style="background:var(--gold)"></div></div>
+<div class="stat-bar-track"><div id="s-hard-bar" class="stat-bar-fill" style="background:var(--c-hard)"></div></div>
 </div>
 <div class="stat-group" id="g-food">
 <div class="stat-row"><span class="stat-label">🍕 קולינריה ואוכל</span><span class="stat-val" id="s-food-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-food-bar" class="stat-bar-fill" style="background:#FF6B6B"></div></div>
+<div class="stat-bar-track"><div id="s-food-bar" class="stat-bar-fill" style="background:var(--c-food)"></div></div>
 </div>
 <div class="stat-group" id="g-travel">
 <div class="stat-row"><span class="stat-label">✈️ טיולים וחוץ</span><span class="stat-val" id="s-travel-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-travel-bar" class="stat-bar-fill" style="background:#2ECC71"></div></div>
+<div class="stat-bar-track"><div id="s-travel-bar" class="stat-bar-fill" style="background:var(--c-travel)"></div></div>
 </div>
 <div class="stat-group" id="g-work">
 <div class="stat-row"><span class="stat-label">💼 קריירה וכסף</span><span class="stat-val" id="s-work-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-work-bar" class="stat-bar-fill" style="background:#9B59B6"></div></div>
+<div class="stat-bar-track"><div id="s-work-bar" class="stat-bar-fill" style="background:var(--c-work)"></div></div>
 </div>
 <div class="stat-group" id="g-scifi">
 <div class="stat-row"><span class="stat-label">🛸 כוחות על ופנטזיה</span><span class="stat-val" id="s-scifi-txt">0%</span></div>
-<div class="stat-bar-track"><div id="s-scifi-bar" class="stat-bar-fill" style="background:#1ABC9C"></div></div>
+<div class="stat-bar-track"><div id="s-scifi-bar" class="stat-bar-fill" style="background:var(--c-scifi)"></div></div>
 </div>
 </div>
 </div>
-<button class="btn-main btn-primary" onclick="startNewRoundSamePlayers()">סיבוב חדש (שומר שמות) 🔄</button>
-<button class="btn-main btn-outline" style="margin-top:8px" onclick="resetToHomepage()">ערוך שמות ומסך בית 🏠</button>
+<div class="sticky-actions">
+<button type="button" class="btn-main btn-primary" onclick="startNewRoundSamePlayers()">סיבוב חדש (שומר שמות) 🔄</button>
+<button type="button" class="btn-main btn-outline" onclick="resetToHomepage()">ערוך שמות ומסך בית 🏠</button>
+</div>
 </div>
 
 </div>
+
+<dialog id="exit-dialog" class="exit-dialog" aria-labelledby="exit-title">
+<h2 id="exit-title">לצאת למסך הבית?</h2>
+<p>המשחק נשמר, ואפשר להמשיך אותו מהמסך הראשי.</p>
+<div class="dialog-actions">
+<button type="button" class="btn-main btn-primary" onclick="closeExitDialog()">המשך לשחק</button>
+<button type="button" class="btn-main btn-outline" onclick="confirmExit()">יציאה למסך הבית</button>
+</div>
+</dialog>
 
 <script>
 const questionBank = {
@@ -470,22 +616,44 @@ stats: {}
 
 let isTransitioning = false;
 
+// צבעי תצוגה לקטגוריות — נפרדים מצבעי השחקנים (ורוד / כחול)
+const CAT_COLORS = { day:'#FF9F43', val:'#B794F6', hard:'#FFCC00', food:'#FF6B6B', travel:'#2ECC71', work:'#D9C3A0', scifi:'#1ABC9C' };
+
 window.onload = function() {
-if(localStorage.getItem('whadyauprefer_save_v5')) {
-document.getElementById('resume-btn').style.display = 'block';
-}
+updateResumeBtn();
 updateCategoryUI();
+['p1', 'p2'].forEach(p => {
+document.getElementById(`${p}-name`).addEventListener('input', () => setFieldError(p, ''));
+});
 };
+
+function updateResumeBtn() {
+document.getElementById('resume-btn').style.display = localStorage.getItem('whadyauprefer_save_v5') ? 'block' : 'none';
+}
 
 function showScreen(id) {
 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+const screen = document.getElementById(id);
+screen.classList.add('active');
+if (id === 'start-screen') updateResumeBtn();
+window.scrollTo(0, 0);
+screen.focus({ preventScroll: true });
+}
+
+function setFieldError(p, msg) {
+const input = document.getElementById(`${p}-name`);
+const err = document.getElementById(`${p}-error`);
+err.textContent = msg;
+err.classList.toggle('show', !!msg);
+if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
 }
 
 function validateNamesAndContinue() {
 const n1 = document.getElementById('p1-name').value.trim();
 const n2 = document.getElementById('p2-name').value.trim();
-if (!n1 || !n2) { alert("אנא מלאו את שמות שני השחקנים 📝"); return; }
+setFieldError('p1', n1 ? '' : 'אנא מלאו שם 📝');
+setFieldError('p2', n2 ? '' : 'אנא מלאו שם 📝');
+if (!n1 || !n2) { document.getElementById(!n1 ? 'p1-name' : 'p2-name').focus(); return; }
 
 gameState.p1Name = n1;
 gameState.p2Name = n2;
@@ -498,7 +666,7 @@ if (idx > -1) {
 if (selectedCategories.length > 1) {
 selectedCategories.splice(idx, 1);
 } else {
-alert("חובה לבחור לפחות קטגוריה אחת!");
+showCategoryHint(cat);
 return;
 }
 } else {
@@ -535,7 +703,19 @@ el.classList.add('selected');
 } else {
 el.classList.remove('selected');
 }
+el.setAttribute('aria-pressed', selectedCategories.includes(catId) ? 'true' : 'false');
 });
+}
+
+let catHintTimer = null;
+function showCategoryHint(cat) {
+const hint = document.getElementById('cat-hint');
+hint.textContent = "חובה לבחור לפחות קטגוריה אחת!";
+hint.classList.add('show');
+const tile = document.getElementById(`cat-${cat}`);
+tile.classList.remove('shake'); void tile.offsetWidth; tile.classList.add('shake');
+clearTimeout(catHintTimer);
+catHintTimer = setTimeout(() => { hint.classList.remove('show'); hint.textContent = ''; }, 2500);
 }
 
 function initGame() {
@@ -595,6 +775,8 @@ return arr;
 function startGameFlow() {
 document.getElementById('p1-display-name').textContent = gameState.p1Name;
 document.getElementById('p2-display-name').textContent = gameState.p2Name;
+document.querySelectorAll('.chip-p1').forEach(c => c.textContent = gameState.p1Name);
+document.querySelectorAll('.chip-p2').forEach(c => c.textContent = gameState.p2Name);
 renderQuestion();
 showScreen('game-screen');
 }
@@ -610,9 +792,12 @@ document.getElementById('progress-fill').style.width = `${(gameState.currentIdx 
 
 const catBadge = document.getElementById('cat-badge');
 catBadge.textContent = q.label;
-document.documentElement.style.setProperty('--cat-color', q.color || '#FF3CAC');
+document.documentElement.style.setProperty('--cat-color', CAT_COLORS[q.catKey] || q.color || '#FF9F43');
 
 resetTurnUI();
+
+const card = document.getElementById('q-card-main');
+card.classList.remove('q-enter'); void card.offsetWidth; card.classList.add('q-enter');
 }
 
 function resetTurnUI() {
@@ -621,6 +806,7 @@ gameState.p1Choice = null;
 
 const card = document.getElementById('q-card-main');
 card.className = 'q-card';
+document.getElementById('game-screen').dataset.turn = '1';
 
 document.getElementById('p1-tag').className = 'p-tag p-pink active-turn';
 document.getElementById('p2-tag').className = 'p-tag p-blue';
@@ -646,6 +832,7 @@ document.getElementById('p1-tag').className = 'p-tag p-pink';
 document.getElementById('p1-status').textContent = '✓ הצביע/ה';
 document.getElementById('p2-tag').className = 'p-tag p-blue active-turn';
 document.getElementById('p2-status').textContent = 'תורך! 💙';
+document.getElementById('game-screen').dataset.turn = '2';
 saveState();
 } else {
 isTransitioning = true;
@@ -653,6 +840,7 @@ isTransitioning = true;
 card.classList.add(`p2-selected-${val}`);
 document.getElementById('p2-tag').className = 'p-tag p-blue';
 document.getElementById('p2-status').textContent = '✓ הצביע/ה';
+document.getElementById('game-screen').dataset.turn = 'done';
 
 const catKey = q.catKey;
 gameState.stats[catKey].total++;
@@ -676,6 +864,21 @@ if (isTransitioning) return;
 gameState.currentIdx++;
 saveState();
 renderQuestion();
+}
+
+function openExitDialog() {
+if (isTransitioning) return;
+document.getElementById('exit-dialog').showModal();
+}
+
+function closeExitDialog() {
+document.getElementById('exit-dialog').close();
+}
+
+// יציאה למסך הבית — המשחק כבר שמור, כך שאפשר להמשיך אותו עם "המשך משחק קודם"
+function confirmExit() {
+closeExitDialog();
+showScreen('start-screen');
 }
 
 function saveState() {
@@ -770,6 +973,7 @@ function resizeConf() { confCanvas.width = window.innerWidth; confCanvas.height 
 window.addEventListener('resize', resizeConf); resizeConf();
 
 function triggerConfetti() {
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 for (let i = 0; i < 35; i++) {
 particles.push({
 x: window.innerWidth / 2, y: window.innerHeight * 0.4,
