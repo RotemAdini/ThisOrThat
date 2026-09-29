@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>מה תעדיפו? — המהדורה המורחבת</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Heebo:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+--pink: #FF3CAC;
+--blue: #00D4FF;
+--gold: #FFCC00;
+--purple-bg: #0F0A1C;
+--card-bg: rgba(255, 255, 255, 0.03);
+--card-border: rgba(255, 255, 255, 0.08);
+--cat-color: #FF3CAC;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: 'Rubik', sans-serif;
+background: var(--purple-bg);
+color: #F0F0F8;
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow-x: hidden;
+touch-action: manipulation;
+position: relative;
+}
+
+.bg-glow {
+position: fixed;
+width: 300px;
+height: 300px;
+border-radius: 50%;
+filter: blur(120px);
+opacity: 0.12;
+pointer-events: none;
+z-index: 0;
+animation: glowFloat 8s ease-in-out infinite alternate;
+}
+.glow-1 { background: var(--pink); top: -50px; right: -50px; }
+.glow-2 { background: var(--blue); bottom: -50px; left: -50px; animation-delay: 4s; }
+
+@keyframes glowFloat {
+from { transform: translate(0, 0) scale(1); }
+to { transform: translate(30px, 20px) scale(1.1); }
+}
+
+.container {
+width: 100%;
+max-width: 460px;
+padding: 20px;
+position: relative;
+z-index: 1;
+}
+
+.screen { display: none; flex-direction: column; align-items: center; width: 100%; }
+.screen.active { display: flex; animation: screenIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SCREEN 1: START SCREEN */
+#start-screen { min-height: 80vh; justify-content: center; }
+.hero-cards { position: relative; width: 100%; height: 160px; margin-bottom: 24px; }
+.hero-card {
+position: absolute; width: 180px; border-radius: 20px; padding: 16px;
+font-family: 'Heebo', sans-serif; font-weight: 800; min-height: 110px;
+display: flex; align-items: center; justify-content: center; text-align: center;
+box-shadow: 0 12px 30px rgba(0,0,0,0.4); backdrop-filter: blur(8px); font-size: 0.95rem;
+}
+.hero-card-a { background: linear-gradient(135deg, rgba(255,60,172,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(255,60,172,0.3); right: 5px; top: 10px; transform: rotate(4deg); }
+.hero-card-b { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(15,10,28,0.8)); border: 1px solid rgba(0,212,255,0.3); left: 5px; top: 30px; transform: rotate(-4deg); }
+.vs-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; width: 44px; height: 44px; border-radius: 50%; background: #1A1330; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Heebo', sans-serif; font-weight: 900; }
+.start-title { font-family: 'Heebo', sans-serif; font-weight: 900; font-size: 3.2rem; text-align: center; margin-bottom: 6px; }
+.start-title .grad-text { background: linear-gradient(135deg, var(--pink), #B44FFF, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.start-sub { color: #8C8A9E; text-align: center; margin-bottom: 32px; font-size: 0.95rem; line-height: 1.4; }
+
+.btn-main { width: 100%; padding: 16px 24px; border: none; border-radius: 16px; font-family: 'Heebo', sans-serif; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; position: relative; }
+.btn-primary { background: linear-gradient(135deg, var(--pink), #A040FF, var(--blue)); box-shadow: 0 6px 20px rgba(255,60,172,0.2); }
+.btn-main:active { transform: scale(0.98); }
+.btn-ghost { background: transparent; border: 1px solid rgba(0,212,255,0.25); color: var(--blue); margin-top: 10px; font-size: 0.95rem; }
+.btn-outline-small { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); color: #B2B0C0; font-size: 0.8rem; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+.btn-outline-small:active { background: rgba(255,255,255,0.08); }
+
+/* GLOBAL SETUP STYLES */
+.setup-title { font-family: 'Heebo', sans-serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 24px; text-align: center;}
+.input-wrap { width: 100%; margin-bottom: 16px; }
+.input-label { display: block; font-size: 0.85rem; font-weight: 700; color: #8C8A9E; margin-bottom: 8px; }
+.input-field { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; font-family: 'Rubik', sans-serif; color: white; outline: none; font-size: 1rem; transition: border-color 0.2s; }
+.input-p1 .input-field:focus { border-color: var(--pink); }
+.input-p2 .input-field:focus { border-color: var(--blue); }
+.input-field:focus { border-color: #B44FFF; }
+
+/* SCREEN 3: CATEGORIES & CONFIG */
+.section-header-row { width: 100%; display: flex; justify-content: space-between; align-items: center; margin: 12px 0 10px; }
+.section-subtitle { font-size: 0.85rem; font-weight: 700; color: #8C8A9E; }
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 16px; }
+.cat-opt { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
+.cat-opt .cat-icon { font-size: 1.2rem; margin-bottom: 2px; display: block; }
+.cat-opt .cat-name { font-size: 0.8rem; font-weight: 700; color: #B2B0C0; }
+.cat-opt.selected { background: rgba(180, 79, 255, 0.12); border-color: #B44FFF; }
+.cat-opt.selected .cat-name { color: #FFF; }
+.cat-opt.selected::after { content: '✓'; position: absolute; top: 4px; left: 8px; font-size: 0.7rem; color: #B44FFF; font-weight: bold; }
+
+/* SCREEN 4: GAME SCREEN */
+.game-header { width: 100%; margin-bottom: 12px; }
+.progress-track { width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--blue)); width: 0%; transition: width 0.3s; }
+.q-counter { text-align: center; font-size: 0.75rem; font-weight: 700; color: #6C6A80; }
+
+.category-badge { display: inline-flex; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; background: var(--cat-color); color: #000; margin-bottom: 14px; }
+
+.players-row { display: flex; gap: 8px; width: 100%; margin-bottom: 12px; }
+.p-tag { flex: 1; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.01); border: 1px solid var(--card-border); text-align: center; }
+.p-tag.active-turn.p-pink { border-color: var(--pink); background: rgba(255,60,172,0.06); }
+.p-tag.active-turn.p-blue { border-color: var(--blue); background: rgba(0,212,255,0.06); }
+.p-name { font-size: 0.85rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-status { font-size: 0.7rem; color: #6C6A80; margin-top: 1px; }
+.active-turn.p-pink .p-status { color: var(--pink); font-weight: 700; }
+.active-turn.p-blue .p-status { color: var(--blue); font-weight: 700; }
+
+.q-card { width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); background: rgba(255,255,255,0.02); backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+
+.opt-btn {
+width: 100%; min-height: 120px; padding: 20px; cursor: pointer;
+display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+font-family: 'Rubik', sans-serif; font-size: 1rem; font-weight: 700; line-height: 1.4;
+border: none; color: white; position: relative; background: transparent; transition: background 0.15s;
+}
+.opt-btn:active { background: rgba(255,255,255,0.03); }
+.opt-label { position: absolute; top: 10px; right: 14px; font-size: 0.65rem; font-weight: 900; opacity: 0.15; }
+
+.choice-dots { display: flex; gap: 6px; margin-top: 10px; }
+.cdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: background-color 0.15s; }
+
+.p1-selected-A #opt-a { background: rgba(255,60,172,0.05); }
+.p1-selected-B #opt-b { background: rgba(255,60,172,0.05); }
+.p1-selected-A #opt-a .cdot.p1-dot, .p1-selected-B #opt-b .cdot.p1-dot { background: var(--pink); box-shadow: 0 0 6px var(--pink); }
+
+.p2-selected-A #opt-a { background: rgba(0,212,255,0.05); }
+.p2-selected-B #opt-b { background: rgba(0,212,255,0.05); }
+.p2-selected-A #opt-a .cdot.p2-dot, .p2-selected-B #opt-b .cdot.p2-dot { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+
+.p1-selected-A.p2-selected-A #opt-a { background: linear-gradient(135deg, rgba(255,60,172,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(180, 79, 255, 0.3); }
+.p1-selected-B.p2-selected-B #opt-b { background: linear-gradient(135deg, rgba(255,60,172,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(180, 79, 255, 0.3); }
+
+.or-divider { position: relative; height: 1px; background: var(--card-border); }
+.or-pill { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #140E28; border: 1px solid var(--card-border); color: #5C5A70; font-size: 0.65rem; font-weight: 900; padding: 3px 8px; border-radius: 20px; }
+
+.skip-btn { background: transparent; border: none; color: #5C5A70; font-size: 0.85rem; margin-top: 12px; cursor: pointer; padding: 6px; }
+
+/* SCREEN 5: RESULT SCREEN */
+.result-card { width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; margin-bottom: 12px; text-align: center; backdrop-filter: blur(10px); }
+.score-ring { width: 120px; height: 120px; margin: 0 auto 12px; position: relative; }
+.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 8; }
+.ring-fill { fill: none; stroke: url(#ringGrad); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1.2s ease-out; }
+.score-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.score-num { font-family: 'Heebo', sans-serif; font-size: 2.3rem; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.score-pct { font-size: 0.7rem; color: #8C8A9E; font-weight: 700; }
+.result-names { font-family: 'Heebo', sans-serif; font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
+.result-msg { font-size: 0.85rem; color: #CBCAC0; line-height: 1.4; margin-bottom: 14px; }
+
+.stats-box { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 12px; text-align: right; }
+.stats-title { font-size: 0.75rem; font-weight: 700; color: #6C6A80; text-align: center; margin-bottom: 8px; }
+.stat-group { margin-bottom: 6px; display: none; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 2px; }
+.stat-label { color: #8C8A9E; }
+.stat-val { font-weight: 700; }
+.stat-bar-track { height: 4px; background: rgba(255,255,255,0.04); border-radius: 2px; width: 100%; overflow: hidden; }
+.stat-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
+
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); margin-top: 8px; }
+#confetti-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; }
+</style>
+</head>
+<body>
+
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+
+<div id="start-screen" class="screen active">
+<div class="hero-cards">
+<div class="hero-card hero-card-a">כוח-על לעצור את הזמן ⏱️ אך להזדקן פי 3 מהר יותר מהרגיל</div>
+<div class="hero-card hero-card-b">כוח-על להשתגר לכל מקום 🛸 אך לאבד זיכרון של שבוע לאחור</div>
+<div class="vs-badge">VS</div>
+</div>
+<div class="start-title"><span class="grad-text">מה תעדיפו?</span></div>
+<div class="start-sub">המהדורה הזוגית המורחבת • 150+ דילמות פסיכולוגיות מאוזנות</div>
+<button class="btn-main btn-primary" onclick="showScreen('names-screen')">להתחלת המשחק ←</button>
+<button id="resume-btn" class="btn-main btn-ghost" style="display:none" onclick="resumeGame()">⏱️ המשך משחק קודם</button>
+</div>
+
+<div id="names-screen" class="screen">
+<div class="setup-title">מי השחקנים? 👥</div>
+
+<div class="input-wrap input-p1">
+<label class="input-label">שחקן/ית א׳ (ורוד)</label>
+<input class="input-field" type="text" id="p1-name" placeholder="שם שחקן 1...">
+</div>
+<div class="input-wrap input-p2">
+<label class="input-label">שחקן/ית ב׳ (כחול)</label>
+<input class="input-field" type="text" id="p2-name" placeholder="שם שחקן 2...">
+</div>
+
+<button class="btn-main btn-primary" style="margin-top: 14px;" onclick="validateNamesAndContinue()">המשך לבחירת קטגוריות ←</button>
+</div>
+
+<div id="setup-screen" class="screen">
+<div class="setup-title">הגדרות הסיבוב ⚙️</div>
+
+<div class="section-header-row">
+<div class="section-subtitle">בחר קטגוריות למשחק:</div>
+<button class="btn-outline-small" id="all-cats-btn" onclick="selectAllCategories()">בחר הכל ✨</button>
+</div>
+
+<div class="cat-grid">
+<div class="cat-opt selected" id="cat-day" onclick="toggleCategory('day')">
+<span class="cat-icon">🍳</span>
+<span class="cat-name">חיי יום-יום</span>
+</div>
+<div class="cat-opt selected" id="cat-val" onclick="toggleCategory('val')">
+<span class="cat-icon">🧠</span>
+<span class="cat-name">ערכים</span>
+</div>
+<div class="cat-opt selected" id="cat-hard" onclick="toggleCategory('hard')">
+<span class="cat-icon">🌶️</span>
+<span class="cat-name">מצבי קיצון</span>
+</div>
+<div class="cat-opt selected" id="cat-food" onclick="toggleCategory('food')">
+<span class="cat-icon">🍕</span>
+<span class="cat-name">קולינריה</span>
+</div>
+<div class="cat-opt" id="cat-travel" onclick="toggleCategory('travel')">
+<span class="cat-icon">✈️</span>
+<span class="cat-name">טיולים וחוץ</span>
+</div>
+<div class="cat-opt" id="cat-work" onclick="toggleCategory('work')">
+<span class="cat-icon">💼</span>
+<span class="cat-name">קריירה וכסף</span>
+</div>
+<div class="cat-opt" id="cat-scifi" onclick="toggleCategory('scifi')">
+<span class="cat-icon">🛸</span>
+<span class="cat-name">כוחות על ודעש</span>
+</div>
+</div>
+
+<div class="input-wrap">
+<label class="input-label">על כמה שאלות תרצו לענות? (1-1000)</label>
+<input class="input-field" type="number" id="q-total-input" min="1" max="1000" value="20">
+</div>
+
+<button class="btn-main btn-primary" style="margin-top: 14px;" onclick="initGame()">אל המגרש! 🔥</button>
+</div>
+
+<div id="game-screen" class="screen">
+<div class="game-header">
+<div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+<div class="q-counter" id="q-count">שאלה 1</div>
+</div>
+
+<div id="cat-badge" class="category-badge">حיי יום-יום</div>
+
+<div class="players-row">
+<div id="p1-tag" class="p-tag p-pink active-turn">
+<div class="p-name" id="p1-display-name">-</div>
+<div class="p-status" id="p1-status">תורך! 🌸</div>
+</div>
+<div id="p2-tag" class="p-tag p-blue">
+<div class="p-name" id="p2-display-name">-</div>
+<div class="p-status" id="p2-status">ממתין...</div>
+</div>
+</div>
+
+<div class="q-card" id="q-card-main">
+<button class="opt-btn" id="opt-a" onclick="handleChoice('A')">
+<span class="opt-label">א׳</span>
+<span id="text-a">...</span>
+<div class="choice-dots"><div class="cdot p1-dot"></div><div class="cdot p2-dot"></div></div>
+</button>
+<div class="or-divider"><div class="or-pill">או</div></div>
+<button class="opt-btn" id="opt-b" onclick="handleChoice('B')">
+<span class="opt-label">ב׳</span>
+<span id="text-b">...</span>
+<div class="choice-dots"><div class="cdot p1-dot"></div><div class="cdot p2-dot"></div></div>
+</button>
+</div>
+
+<button class="skip-btn" onclick="nextQuestion()">⏩ דלגו על השאלה</button>
+</div>
+
+<div id="result-screen" class="screen">
+<div class="result-card">
+<div class="score-ring">
+<svg viewBox="0 0 150 150">
+<defs>
+<linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="#FF3CAC"/><stop offset="100%" stop-color="#00D4FF"/>
+</linearGradient>
+</defs>
+<circle class="ring-bg" cx="75" cy="75" r="70"/>
+<circle class="ring-fill" id="ring-fill" cx="75" cy="75" r="70"/>
+</svg>
+<div class="score-center"><div class="score-num" id="score-num">0%</div><div class="score-pct">התאמה</div></div>
+</div>
+<div class="result-names" id="result-names">-</div>
+<div class="result-msg" id="result-msg">-</div>
+
+<div class="stats-box">
+<div class="stats-title">פילוח לפי קטגוריות ששיחקתם</div>
+
+<div class="stat-group" id="g-day">
+<div class="stat-row"><span class="stat-label">🍳 חיי יום-יום</span><span class="stat-val" id="s-day-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-day-bar" class="stat-bar-fill" style="background:var(--pink)"></div></div>
+</div>
+<div class="stat-group" id="g-val">
+<div class="stat-row"><span class="stat-label">🧠 ערכים ופילוסופיה</span><span class="stat-val" id="s-val-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-val-bar" class="stat-bar-fill" style="background:var(--blue)"></div></div>
+</div>
+<div class="stat-group" id="g-hard">
+<div class="stat-row"><span class="stat-label">🌶️ מצבי קיצון</span><span class="stat-val" id="s-hard-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-hard-bar" class="stat-bar-fill" style="background:var(--gold)"></div></div>
+</div>
+<div class="stat-group" id="g-food">
+<div class="stat-row"><span class="stat-label">🍕 קולינריה ואוכל</span><span class="stat-val" id="s-food-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-food-bar" class="stat-bar-fill" style="background:#FF6B6B"></div></div>
+</div>
+<div class="stat-group" id="g-travel">
+<div class="stat-row"><span class="stat-label">✈️ טיולים וחוץ</span><span class="stat-val" id="s-travel-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-travel-bar" class="stat-bar-fill" style="background:#2ECC71"></div></div>
+</div>
+<div class="stat-group" id="g-work">
+<div class="stat-row"><span class="stat-label">💼 קריירה וכסף</span><span class="stat-val" id="s-work-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-work-bar" class="stat-bar-fill" style="background:#9B59B6"></div></div>
+</div>
+<div class="stat-group" id="g-scifi">
+<div class="stat-row"><span class="stat-label">🛸 כוחות על ופנטזיה</span><span class="stat-val" id="s-scifi-txt">0%</span></div>
+<div class="stat-bar-track"><div id="s-scifi-bar" class="stat-bar-fill" style="background:#1ABC9C"></div></div>
+</div>
+</div>
+</div>
+<button class="btn-main btn-primary" onclick="startNewRoundSamePlayers()">סיבוב חדש (שומר שמות) 🔄</button>
+<button class="btn-main btn-outline" style="margin-top:8px" onclick="resetToHomepage()">ערוך שמות ומסך בית 🏠</button>
+</div>
+
+</div>
+
+<script>
+const questionBank = {
+day: [
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"בכל ניקיון בית, להקשיב למוזיקה שאתם שונאים בעוצמה גבוהה", b:"לנקות בשקט מוחלט, אך המים תמיד קפואים והסמרטוטים חצי יבשים ומסריחים" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לישון 16 שעות ביממה, מה שמשאיר לכם רק 8 שעות לפעול", b:"לישון רק שעתיים ביממה, אך לחוות עייפות ותשישות כבדה לאורך כל היום" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לחיות בתחושה שתמיד קר לכם (גם מתחת לפוך בשיא הקיץ)", b:"לחיות בתחושה שתמיד חם לכם (מזיעים קבוע גם מול מזגן מקפיא)" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לחיות עם כאב headache עמום אך קבוע שלא עובר אף פעם", b:"לחיות עם אף סתום לחלוטין שמאלץ אתכם לנשום אך ורק מהפה" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לישון תמיד בחדר רועש כמו אתר בנייה, אך חשוך לחלוטין", b:"לישון תמיד בחדר שקט לחלוטין, אך עם אור פלורסנט בוהק ומסנוור" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לחבוש כובע צמר עבה, מגרד וחונק בראש 24/7", b:"ללבוש כפפות סקי עבות, מגושמות ומיוזעות בידיים 24/7" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"להקדים בשעה שלמה לכל פגישה, אירוע או יום עבודה", b:"לאחר בחצי שעה קבועה לכל מקום בחיים ולספוג את הכעס וההשלכות" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לדבר תמיד בטון דיבור חזק וצועק (כאילו אתם באמצע מסיבה)", b:"לדבר תמיד בלחישה חרישית ומעייפת שמאלצת אחרים להתאמץ לשמוע" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"ללבוש בגדים לחים, קרים ורטובים קצת באופן קבוע", b:"ללבוש בגדים יבשים לחלוטין אך מלאים בחול דוקר ומגרד" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"שכל הרהיטים בבית יהיו נמוכים מדי (לשבת ולקום במאמץ אדיר ברכיים)", b:"שכל הרהיטים והשישים בבית יהיו גבוהים מדי (להזדקק לשרפרף לכל פעולה)" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"כל מכשירי החשמל בבית פועלים לאט פי 4 (סמארטפון, קומקום, מיקרוגל)", b:"מכשירי החשמל מהירים בטירוף אך מקבלים קצר ונדלקים/נכבים אקראית בלילה" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"להתקלח כל החיים בזרם מים חלש ודליל מאוד, אך בטמפרטורה מדויקת", b:"להתקלח בזרם חזק ומפנק, אך המים מחליפים טמפרטורה אקראית בין רותח לקפוא" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לשכוח את המפתחות של הבית פעם בשבוע ולהינעל בחוץ לשעתיים", b:"לשכוח את הסיסמה לטלפון פעם בשבוע ולמחוק אותו לחלוטין בהפעלה מחדש" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"שיהיה לכם תמיד קוץ בלתי נראה בכף הרגל שמציק בכל דריכה", b:"שיהיה לכם פצע קטן ומציק בתוך הפה שלא עובר ומקשה על האכילה" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לכבס את כל הבגדים שלכם ביד בתוך גיגית כל החיים", b:"לשטוף את כל הכלים בבית ביד ללא ספוג (רק עם אצבעות ומים)" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לחיות בבית שבו כל הדלתות חורקות בעוצמה מחרישת אוזניים", b:"לחיות בבית שבו כל הרצפה עשויה מפרקט רופף שמשמיע קנאקים בכל צעד" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לגהץ כל פריט לבוש שאתם לובשים (כולל גרביים ותחתונים) לפני היציאה", b:"ללכת תמיד עם בגדים מקומטים לחלוטין שנראו כאילו נשלפו מהרצפה" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לעשות קניות לבית רק פעם בחצי שנה (לקנות כמויות מטורפות ולנהל מחסן)", b:"לעשות קניות קטנות כל יום מחדש (לבזבז שעה יומית בסופר)" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"להתעורר כל יום ב-4 בבוקר בלי יכולת לחזור לישון", b:"להתעורר כל יום ב-12 בצהריים ולהרגיש שחצי יום הלך לאיבוד" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לשמוע קול של התראת ווטסאפ בתוך הראש כל 10 דקות באופן קבוע", b:"לראות הבזק אור קטן בזווית העין בכל פעם שאתם ממצמצים" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"לחיות בבית בלי אף מראה אחת (לא יודעים איך אתם נראים)", b:"לחיות בבית שבו כל הקירות עשויים ממראות (רואים את עצמכם מכל זווית תמיד)" },
+{ label:"חיי יום-יום 🍳", color:"#FF3CAC", a:"שכל הגרביים שלכם יהיו עם חור קטן ומציק בבוהן", b:"שכל הנעליים שלכם ישמיעו קול צפצוף של נעלי ילדים בכל צעד" }
+],
+val: [
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לדעת בדיוק באיזה תאריך ושעה תמותו, בלי שום יכולת לשנות זאת", b:"לדעת בדיוק מה תהיה סיבת המוות, אך לא לדעת מתי, ולפחד ממנה כל החיים" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"חיי חברה תוססים ומלאי מעריצים ומסיבות, אך ללא משפחה קרובה", b:"משפחה ענקית, חמה ומחבקת, אך ללא שום חברים או קשרים מחוץ לה" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לגור בדירת חלומות יוקרתית שבה השכנים מתנכלים ורבים אתכם קבוע", b:"לגור בדירה קטנה, מוזנחת ופשוטה, אך השכנים הם החברים הכי טובים שלכם" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להיות גאוני דור מבריקים בעלי הישגים, אך חסרי כישורים חברתיים לחלוטין", b:"להיות בעלי קסם אישי פנומנלי שכולם מעריצים, אך עם אינטליגנציה נמוכה מאוד" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להגיד תמיד בקול רם את כל האמת בפרצוף (גם כשהיא פוגעת ומחריבה קשרים)", b:"לשקר תמיד בכל שיחה ואינטראקציה, בלי יכולת לומר מילה אחת כנה מהלב" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להיות אופטימיים חסרי תקנה שמאמינים לכולם ונופלים קבוע בעוקצים ונוכלויות", b:"להיות חשדנים וביקורתיים כלפי כולם, מה שמונע אכזבות אך משאיר אתכם מבודדים" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לגדל משפחה ברוכת ילדים (10 ילדים) עם המון רעש, בלגן, וחוסר פרטיות", b:"לא להביא ילדים לעולם בכלל ולחיות בשקט, שלווה ובדידות מוחלטת" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לזכור בצורה מושלמת כל רגע מביך, עצוב או כואב שקרה לכם בחיים", b:"לשכוח לחלוטין את כל רגעי האושר וההישגים הגדולים ביותר שחוויתם" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להיות האדם הכי עשיר בעולם אבל כולם סביבך שונאים אותך בסתר", b:"להיות האדם הכי עני בעולם אבל כולם מעריצים ואוהבים אותך אהבת אמת" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לחיות בעולם שבו אין יותר חוקים בכלל (אנרכיה מוחלטת וחופש קיצוני)", b:"לחיות בעולם עם חוקים נוקשים ביותר על כל צעד (אפס חופש בחירה אך ביטחון מלא)" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לדעת מה כולם חושבים עליך בכל רגע נתון (כולל הדברים הרעים והמביכים)", b:"שאף אחד לא יגיד לך לעולם מה הוא באמת מרגיש או חושב כלפיך" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להקריב את הנוחות שלכם כדי להציל 10 אנשים זרים לחלוטין", b:"להציל את הנוחות שלכם במחיר של פגיעה קלה ב-10 אנשים זרים" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לחיות לנצח (חיי נצח) בעוד שכל האנשים שאתם אוהבים מזדקנים ומתים סביבכם", b:"לחיות חיים קצרים ומדהימים של 40 שנה בלבד, אך למות יחד עם בני הזוג" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להיות מסוגלים להרגיש רק אושר, בלי יכולת לחוות עצב או אמפתיה לכאב של אחרים", b:"להרגיש את הכאב של כל העולם בעוצמה גבוהה, אך לחוות אושר עילאי כשמצליחים לעזור" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"להיות מפורסמים בכל העולם (אפס פרטיות, כולם עוקבים אחריכם)", b:"להיות שקופים לחלוטין (אף אחד לא שם לב אליכם או זוכר את השם שלכם)" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לחיות בעבר (בשנות ה-50) עם משפחה חמה אך ללא טכנולוגיה ורפואה מודרנית", b:"לחיות בעתיד הרחוק (שנת 2200) עם טכנולוגיה מטורפת אך בעולם מנוכר ורובוטי" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"שתמיד תהיה לכם האפשרות להתחרט ולחזור שעה אחת אחורה, אך זה מקצר לכם חודש מהחיים", b:"לחיות ללא שום יכולת לתקן טעויות - כל החלטה היא סופית ובלתי הפיכה" },
+{ label:"ערכים ופילוסופיה 🧠", color:"#00D4FF", a:"לעשות תמיד מה שטוב לאחרים ולשים את עצמכם במקום האחרון בחיים", b:"לעשות תמיד מה שטוב לכם בלבד, גם אם זה פוגע פגיעה קלה בסובבים אתכם" }
+],
+hard: [
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"להיתקע במעלית צפופה למשך 12 שעות עם חמישה אנשים זרים מיוזעים ולחוצים", b:"להיתקע במעלית לבד למשך 48 שעות בחושך מוחלט ובדממה בלי לדעת מתי החילוץ" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לאכול כל החיים בלי חוש טעם בכלל (הכל מרגיש כמו קרטון לעוס)", b:"לחיות בלי חוש מגע פיזי בגוף (לא מרגישים חיבוק, ליטוף, קור או חום)" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"ללכת יחפים על כל משטח בחוץ (אספלט לוהט, קוצים, אבנים) כל החיים", b:"לנעול נעלי חיר כבדות ולוחצות בכל רגע, כולל בזמן שינה וברחצה" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לשמוע צפצוף קבוע בעוצמה בינונית (טינטון) באוזן שמפריע קשות להתרכז", b:"להריח ריח חמוץ וקשה של אשפה רקובה בכל מקום אליו תלכו" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לא להרגיש כאב פיזי בכלל (חוסר יכולת לדעת אם נפצעתם או נפגעתם)", b:"לא להרגיש פחד בכלל (חוסר מוחלט במנגנון הישרדות וזהירות)" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"להעביר שעה שלמה בתוך אקווריום סגור מלא בג'וקים ותיקנים ענקיים", b:"ללקק חמאת בוטנים מכף רגל של אדם זר לחלוטין באמצע הרחוב" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לצעוד בתוך ביצה בוצית וחשוכה כשאתם לא רואים על מה הרגליים דורכות", b:"לצעוד בתוך ביצה מוארת כשאתם רואים נחשים ועלוקות שוחים סביבכם" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"להיות נעולים בחדר לבן וריק לחלוטין ללא שום גירוי למשך שבוע", b:"להיות בתוך חדר מלא במסכים רועשים, אורות מהבהבים ורעש מחריש אוזניים לשבוע" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לבלות לילה שלם בתוך בית קברות חשוך ומבודד לבדכם", b:"לבלות לילה שלם בתוך בית נטוש ומפחיד שבו יש רעשים של צעדים ודלתות נטרקות" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"שכל השיער שלכם ינשור לחלוטין ולא יצמח לעולם (קרחת חלקה לגמרי)", b:"שיהיה לכם שיער גוף עבות, ארוך ומטורף בכל מקום כולל הפנים" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"להפסיד את כל הכסף והרכוש שלכם ולהתחיל מאפס בגיל 50", b:"להישאר עם כל הרכוש אך לאבד את היכולת לדבר שפות (לתקשר רק בגירורים וקולות)" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לחיות שנה שלמה על אי בודד בלי שום קשר אנושי, אך עם אוכל בשפע", b:"לחיות שנה שלמה בעיר צפופה והמונית אך כולם מתעלמים מכם לחלוטין (כמו רוחות רפאים)" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"לעבור עינוי דגדוגים קשוח ברגליים למשך 4 שעות רצופות", b:"לעבור שטיפת מוח שבה אתם חייבים לצפות באותו סרטון ילדים מעצבן 48 שעות ברצף" },
+{ label:"מצבי קיצון 🌶️", color:"#FFCC00", a:"שכל קעקוע פדיחה שיציעו לכם יודפס לכם בגדול על המצח", b:"שכל מחשבה סודית ומביכה שלכם תפורסם כסטטוס בפייסבוק פעם בחודש" }
+],
+food: [
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"להכין תמיד מאפים מושלמים ואווריריים למראה, אך הם חסרי טעם (כמו קמח מבושל)", b:"להכין מאפים בטעם אלוהי ומדהים, אך הם תמיד קורסים, נראים זוועה ונשרפים" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול רק אוכל מלוח כל החיים, אך הכל תמיד מלוח מדי וגורם לצימאון", b:"לאכול רק אוכל חמוץ כל החיים, אך הכל תמיד חמוץ ומכווץ את הפנים" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול רק פירות מתוקים, אך אסור לגעת בפחמימות, בצקים, בשר או דגים", b:"לאכול רק ירקות קראנצ'יים וטריים, אך אסור לאכול שום דבר מתוק או אפוי" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול אוכל חם בלבד (גם מים, קולה וגלידה מוגשים לכם רותחים ומעלים אדים)", b:"לאכול אוכל קר בלבד (גם סטייק, מרק או פיצה מוגשים לכם קפואים מהמקרר)" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לוותר על שוקולד וכל סוגי הקינוחים המבוססים על קקאו לכל החיים", b:"לוותר על פיצה, פסטה וכל מאפה בצק מבוסס קמח לבן לכל החיים" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"שכל מה שאתם אוכלים יהיה במרקם של פירה/גרבר (רך ונוזלי בלי יכולת לנגוס)", b:"שכל מה שאתם אוכלים יהיה קשה ויבש בטירוף (מצריך לעיסה מאומצת של דקות)" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לשתות רק מים פושרים כל החיים (בלי קפה, מיץ, אלכוהול או מוגז)", b:"לשתות כל משקה שתרצו, אך בכל כוס יש חתיכות קטנות של קרח שמפריעות לבלוע" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול תמיד במסעדות שף יוקרתיות, אך המנות פצפונות ואתם תמיד נשארים רעבים", b:"לאכול אוכל ביתי פשוט ומשעמם, אך בכמויות ענק ותמיד שבעים ומפוצצים" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"חוסר יכולת להוסיף מלח לאוכל בחיים (הכל תפל אך מרגישים את חומרי הגלם)", b:"חוסר יכולת להוסיף תבלינים בכלל מלבד מלח (אוכל מלוח אך ללא שום עומק וטעם)" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול קוסקוס יבש לחלוטין בלי מרק בכל ארוחה", b:"לאכול מרק קוסקוס שהוא רק מים צהובים בלי ירקות או גרגרים" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"בכל ביס של אוכל, לחוות תחושת חריפות קלה ששורפת בלשון", b:"בכל ביס של אוכל, לחוות תחושת קרירות קיצונית של מנטול שמקפיאה את החיך" },
+{ label:"קולינריה ואוכל 🍕", color:"#FF6B6B", a:"לאכול רק אוכל שאתם בישלתם בעצכם (אסור לקנות מוכן, מסעדות או אצל ההורים)", b:"לאכול רק אוכל שאחרים בישלו, אך אין לכם שום שליטה על מה שנכנס למנה" }
+],
+travel: [
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לטוס רק במחלקת עסקים מפנקת, אך להגיע תמיד ליעדים משעממים, אפורים וגשומים", b:"לטוס ליעדים הכי יפים ואקזוטיים, אך רק בטיסות קונקשן של 30 שעות במושב אמצעי" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לצאת לסופ\"ש מפנק ויוקרתי בארץ כל חודשיים קבוע", b:"לטוס לטיול חלומות מטורף ויקר בחו\"ל רק פעם בחמש שנים" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לא לטוס בטיסות יותר בחיים (התניידות ומעבר בין מדינות רק ביבשה ובים)", b:"לא לנסוע ברכבים פרטיים, מוניות או רכבות בחיים (רק טיסות והליכה ברגל)" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לחיות במזג אוויר סגרירי, אפור, קריר וגשום כל ימי השנה", b:"לחיות בקיץ ישראלי לוהט, לח, מיוזע ומעיק 365 ימים בשנה" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לטייל בעולם לבד לחלוטין בלי יכולת לשתף אף אחד בחוויות ובצילומים", b:"לטייל תמיד בקבוצה מאורגנת ורועשת של 40 איש שמכתיבים לכם את הלו\"ז" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"חופשת בטן-גב מושלמת בריזורט חלומות, אך האזור מלא ביתושים קטלניים ועקיצות", b:"טיול נופים קפוא ומהמם באירופה, אך אתם מסתובבים קבוע עם גרביים ומגפיים רטובים" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לטוס לחו\"ל עם מזוודת טרולי קטנה בלבד (בלי יכולת לקנות כלום או להביא בגדים)", b:"לטוס עם 4 מזוודות ענקיות וכבדות שאתם חייבים לסחוב איתכם ידנית לכל מקום" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לבקר רק בערים ענקיות, סואנות, ומלאות גורדי שחקים ופיח (ניו יורק, טוקיו)", b:"לבקר רק בכפרים מבודדים, טבע פראי ויערות ללא שום חנויות, קניונים או קליטה" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לישון בטיולים רק במלונות 5 כוכבים, אך האוכל במדינה מגעיל אתכם ולא אכיל", b:"לישון באוהלים ושקי שינה על הרצפה, אך האוכל המקומי הוא הטעים ביותר שטעמתם" },
+{ label:"טיולים וחוץ ✈️", color:"#2ECC71", a:"לטוס לחו\"ל פעם בחודש לסופ\"ש קצר ומלחיץ של 48 שעות בלבד", b:"לטוס פעם בשנה לחופשה ארוכה של חודשיים רצופים שמנתקת אתכם מהשגרה" }
+],
+work: [
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"לנהל עסק עצמאי מצליח ומכניס מאוד, אך לעבוד 14 שעות ביום כולל סופ\"ש ללא ניתוק", b:"להיות שכירים בעבודה קלילה של 6 שעות ביום עם אפס דאגות, אך בשכר מינימום ללא חסכונות" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"להרוויח 40,000 ש\"ח בחודש, אך תחת לחץ קשה, יחס משפיל ופחד קבוע מפיטורין", b:"להרוויח 9,000 ש\"ח בחודש בלבד, אך עם שקט נפשי מוחלט, יחס מדהים וקביעות" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"לעבוד במשרד עם אנשים רעשניים, פטפטנים שלא מפסיקים לשיר ולצעוק סביבכם", b:"לעבוד בבידוד מוחלט בחדר סגור ואטום בלי שום אינטראקציה אנושית לאורך היום" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"לקבל 10 מיליון ש\"ח במזומן עכשיו, אך אסור לכם לעבוד או לייצר שום קריירה בחיים", b:"לעבוד בעבודת החלומות שלכם ולהגיע להישגים ענקיים, אך השכר תמיד יכסה בדיוק את ההוצאות" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"עבודה שבה המנהל שלכם יושב לכם על הראש ובוחן כל קליק ותנועה שלכם", b:"עבודה שבה אין מנהל בכלל, אך אין לכם מושג מה המטלות ואתם תמיד בחרדה שאתם טועים" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"לנסוע שעתיים קשוחות לכל כיוון בפקקים לעבודה מדהימה ומספקת", b:"לעבוד מהבית מהמיטה, אך בעבודה משעממת, מונוטונית ושוחקת נפש" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"לעבוד בעבודה שבה אתם מחליפים תפקיד ומשימות לחלוטין כל שבועיים (חוסר יציבות)", b:"לעבוד באותו תפקיד בדיוק עם אותן משימות מונוטוניות למשך 40 שנה רצופות" },
+{ label:"קריירה וכסף 💼", color:"#9B59B6", a:"להיות הבוס הגדול של חברה עם 500 עובדים (אחריות מטורפת, תביעות ולחץ)", b:"להיות עובד זוטר ללא שום סמכות או השפעה, שמבצע רק פקודות פשוטות" }
+],
+scifi: [
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"להחזיק בכוח לעצור את הזמן מתי שתרצו, אך בזמן שהעולם עצור אתם מזדקנים פי 3 מהר מהרגיל", b:"להחזיק ביכולת להשתגר מיידית לכל נקודה בעולם, אך מאבדים את הזיכרונות מהשבוע האחרון" },
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"לשלוט בכל השפות בעולם באופן מושלם, אך לא להבין שום דבר במדע, מתמטיקה או טכנולוגיה", b:"להיות מומחי על בכל תחום מדעי וטכנולוגי, אך מסוגלים לדבר ולהבין רק שפה אחת פשוטה" },
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"להיות מסוגלים לעוף בשמיים, אך רק במהירות של הליכה איטית (5 קמ\"ש) ובמאמץ פיזי של ריצה", b:"להיות מסוגלים לרוץ במהירות האור (סופר-מהיר), אך בכל עצירה אתם חווים סחרחורת ובחילה קשה" },
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"לקרוא מחשבות של אנשים, אך ורק את המחשבות השליליות, הביקורתיות והרעות שלהם עליכם", b:"להיות מסוגלים להפוך לרואים ואינם נראים (רוח רפאים), אך במצב זה אתם שומעים רעש סטטי חזק באוזניים" },
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"להיות מסוגלים לדבר עם חיות, אך הן תמיד משקרות לכם, מקללות או מתנשאות עליכם", b:"להיות מסוגלים לדבר עם חפצים דוממים, והם תמיד מתלוננים על כמה שרע להם וכואב להם" },
+{ label:"כוחות על ופנטזיה 🛸", color:"#1ABC9C", a:"היכולת לרפא כל מחלה או פצע של אדם אחר בלחיצת יד, אך הכאב שלו עובר אליכם למשך 24 שעות", b:"היכולת לא לחלות או להיפצע לעולם (חסינות מוחלטת), אך הגוף שלכם זוהר באור ירוק בוהק בחושך" }
+]
+};
+
+let selectedCategories = ['day', 'val', 'hard', 'food']; // ברירת מחדל התחלתית
+let activeQuestions = [];
+
+let gameState = {
+p1Name:'', p2Name:'',
+currentIdx: 0, turn: 1, p1Choice: null,
+stats: {}
+};
+
+let isTransitioning = false;
+
+window.onload = function() {
+if(localStorage.getItem('whadyauprefer_save_v5')) {
+document.getElementById('resume-btn').style.display = 'block';
+}
+updateCategoryUI();
+};
+
+function showScreen(id) {
+document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
+function validateNamesAndContinue() {
+const n1 = document.getElementById('p1-name').value.trim();
+const n2 = document.getElementById('p2-name').value.trim();
+if (!n1 || !n2) { alert("אנא מלאו את שמות שני השחקנים 📝"); return; }
+
+gameState.p1Name = n1;
+gameState.p2Name = n2;
+showScreen('setup-screen');
+}
+
+function toggleCategory(cat) {
+const idx = selectedCategories.indexOf(cat);
+if (idx > -1) {
+if (selectedCategories.length > 1) {
+selectedCategories.splice(idx, 1);
+} else {
+alert("חובה לבחור לפחות קטגוריה אחת!");
+return;
+}
+} else {
+selectedCategories.push(cat);
+}
+updateCategoryUI();
+}
+
+function selectAllCategories() {
+const allKeys = Object.keys(questionBank);
+// אם כבר כולם נבחרו, נחזיר לברירת מחדל כדי שיתפקד גם כביטול מהיר
+if (selectedCategories.length === allKeys.length) {
+selectedCategories = ['day'];
+} else {
+selectedCategories = [...allKeys];
+}
+updateCategoryUI();
+}
+
+function updateCategoryUI() {
+const allKeys = Object.keys(questionBank);
+const btn = document.getElementById('all-cats-btn');
+
+if (selectedCategories.length === allKeys.length) {
+btn.textContent = "בטל הכל 🔄";
+} else {
+btn.textContent = "בחר הכל ✨";
+}
+
+document.querySelectorAll('.cat-opt').forEach(el => {
+const catId = el.id.replace('cat-', '');
+if (selectedCategories.includes(catId)) {
+el.classList.add('selected');
+} else {
+el.classList.remove('selected');
+}
+});
+}
+
+function initGame() {
+let qTotal = parseInt(document.getElementById('q-total-input').value);
+if (!qTotal || qTotal < 1) qTotal = 20;
+
+gameState.currentIdx = 0;
+
+gameState.stats = {};
+for (let key in questionBank) {
+gameState.stats[key] = { matches: 0, total: 0 };
+}
+
+activeQuestions = buildBalancedDeck(selectedCategories, qTotal);
+
+saveState();
+startGameFlow();
+}
+
+function buildBalancedDeck(categories, targetTotal) {
+let deck = [];
+let numCats = categories.length;
+let basePerCat = Math.floor(targetTotal / numCats);
+let remainder = targetTotal % numCats;
+
+let tempBank = {};
+categories.forEach(cat => {
+tempBank[cat] = shuffleArray([...questionBank[cat]]);
+});
+
+categories.forEach(cat => {
+let countToTake = basePerCat;
+if (remainder > 0) {
+countToTake++;
+remainder--;
+}
+
+for (let i = 0; i < countToTake; i++) {
+if (tempBank[cat].length === 0) {
+tempBank[cat] = shuffleArray([...questionBank[cat]]);
+}
+deck.push({ ...tempBank[cat].pop(), catKey: cat });
+}
+});
+
+return shuffleArray(deck);
+}
+
+function shuffleArray(arr) {
+for (let i = arr.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[arr[i], arr[j]] = [arr[j], arr[i]];
+}
+return arr;
+}
+
+function startGameFlow() {
+document.getElementById('p1-display-name').textContent = gameState.p1Name;
+document.getElementById('p2-display-name').textContent = gameState.p2Name;
+renderQuestion();
+showScreen('game-screen');
+}
+
+function renderQuestion() {
+if (gameState.currentIdx >= activeQuestions.length) { finishGame(); return; }
+
+const q = activeQuestions[gameState.currentIdx];
+document.getElementById('text-a').textContent = q.a;
+document.getElementById('text-b').textContent = q.b;
+document.getElementById('q-count').textContent = `שאלה ${gameState.currentIdx + 1} מתוך ${activeQuestions.length}`;
+document.getElementById('progress-fill').style.width = `${(gameState.currentIdx / activeQuestions.length) * 100}%`;
+
+const catBadge = document.getElementById('cat-badge');
+catBadge.textContent = q.label;
+document.documentElement.style.setProperty('--cat-color', q.color || '#FF3CAC');
+
+resetTurnUI();
+}
+
+function resetTurnUI() {
+gameState.turn = 1;
+gameState.p1Choice = null;
+
+const card = document.getElementById('q-card-main');
+card.className = 'q-card';
+
+document.getElementById('p1-tag').className = 'p-tag p-pink active-turn';
+document.getElementById('p2-tag').className = 'p-tag p-blue';
+document.getElementById('p1-status').textContent = 'תורך! 🌸';
+document.getElementById('p2-status').textContent = 'ממתין...';
+
+isTransitioning = false;
+}
+
+function handleChoice(val) {
+if (isTransitioning) return;
+if (navigator.vibrate) navigator.vibrate(30);
+
+const q = activeQuestions[gameState.currentIdx];
+const card = document.getElementById('q-card-main');
+
+if (gameState.turn === 1) {
+gameState.p1Choice = val;
+gameState.turn = 2;
+
+card.classList.add(`p1-selected-${val}`);
+document.getElementById('p1-tag').className = 'p-tag p-pink';
+document.getElementById('p1-status').textContent = '✓ הצביע/ה';
+document.getElementById('p2-tag').className = 'p-tag p-blue active-turn';
+document.getElementById('p2-status').textContent = 'תורך! 💙';
+saveState();
+} else {
+isTransitioning = true;
+
+card.classList.add(`p2-selected-${val}`);
+document.getElementById('p2-tag').className = 'p-tag p-blue';
+document.getElementById('p2-status').textContent = '✓ הצביע/ה';
+
+const catKey = q.catKey;
+gameState.stats[catKey].total++;
+const isMatch = (val === gameState.p1Choice);
+
+if (isMatch) {
+gameState.stats[catKey].matches++;
+triggerConfetti();
+}
+
+setTimeout(() => {
+gameState.currentIdx++;
+saveState();
+renderQuestion();
+}, 950);
+}
+}
+
+function nextQuestion() {
+if (isTransitioning) return;
+gameState.currentIdx++;
+saveState();
+renderQuestion();
+}
+
+function saveState() {
+const dataToSave = { gameState, activeQuestions, selectedCategories };
+localStorage.setItem('whadyauprefer_save_v5', JSON.stringify(dataToSave));
+}
+
+function resumeGame() {
+const saved = localStorage.getItem('whadyauprefer_save_v5');
+if (saved) {
+const parsed = JSON.parse(saved);
+gameState = parsed.gameState;
+activeQuestions = parsed.activeQuestions;
+selectedCategories = parsed.selectedCategories;
+
+document.getElementById('p1-name').value = gameState.p1Name;
+document.getElementById('p2-name').value = gameState.p2Name;
+
+updateCategoryUI();
+startGameFlow();
+}
+}
+
+function startNewRoundSamePlayers() {
+localStorage.removeItem('whadyauprefer_save_v5');
+// שומרים על השמות ומנקים רק את משתני הסיבוב
+gameState.currentIdx = 0;
+gameState.turn = 1;
+gameState.p1Choice = null;
+
+showScreen('setup-screen');
+}
+
+function resetToHomepage() {
+localStorage.removeItem('whadyauprefer_save_v5');
+location.reload();
+}
+
+function finishGame() {
+localStorage.removeItem('whadyauprefer_save_v5');
+
+let totalMatches = 0;
+let totalAnswered = 0;
+
+for (let key in gameState.stats) {
+const s = gameState.stats[key];
+const groupEl = document.getElementById(`g-${key}`);
+
+if (s.total > 0) {
+totalMatches += s.matches;
+totalAnswered += s.total;
+
+const pct = Math.round((s.matches / s.total) * 100);
+document.getElementById(`s-${key}-txt`).textContent = pct + '%';
+document.getElementById(`s-${key}-bar`).style.width = pct + '%';
+groupEl.style.display = 'block';
+} else {
+groupEl.style.display = 'none';
+}
+}
+
+const finalScore = totalAnswered === 0 ? 0 : Math.round((totalMatches / totalAnswered) * 100);
+let msg = finalScore >= 80 ? "וואו! אתם תאומי נפש קוסמיים! ✨" : finalScore >= 50 ? "קשר חזק ויציב! יש לכם בסיס מעולה 💖" : "הפכים נמשכים! אתם מביאים המון עניין ושוני לקשר 🔥";
+
+document.getElementById('score-num').textContent = finalScore + '%';
+document.getElementById('result-names').textContent = `${gameState.p1Name} & ${gameState.p2Name}`;
+document.getElementById('result-msg').textContent = msg;
+
+showScreen('result-screen');
+setTimeout(() => {
+const circ = 2 * Math.PI * 70;
+document.getElementById('ring-fill').style.strokeDashoffset = circ - (finalScore/100) * circ;
+}, 100);
+}
+
+function shareToStory() {
+const score = document.getElementById('score-num').textContent;
+const text = `ענינו על אתגר "מה תעדיפו" המורחב ויש לנו ${score} התאמה! 🌸💙`;
+if (navigator.share) {
+navigator.share({ title: 'מה תעדיפו?', text: text, url: window.location.href }).catch(console.error);
+} else {
+navigator.clipboard.writeText(text);
+alert('התוצאה הועתקה! מוכן להדבקה בסטורי 📸');
+}
+}
+
+/* קונפטי */
+const confCanvas = document.getElementById('confetti-canvas');
+const cCtx = confCanvas.getContext('2d');
+let particles = [];
+function resizeConf() { confCanvas.width = window.innerWidth; confCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeConf); resizeConf();
+
+function triggerConfetti() {
+for (let i = 0; i < 35; i++) {
+particles.push({
+x: window.innerWidth / 2, y: window.innerHeight * 0.4,
+angle: Math.random() * Math.PI * 2, speed: 2 + Math.random() * 5, r: 2 + Math.random() * 3,
+color: ['#FF3CAC','#00D4FF','#FFCC00'][Math.floor(Math.random()*3)], alpha: 1, decay: 0.015 + Math.random() * 0.015
+});
+}
+}
+function animConf() {
+cCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+for (let i = particles.length - 1; i >= 0; i--) {
+const p = particles[i]; p.x += Math.cos(p.angle) * p.speed; p.y += Math.sin(p.angle) * p.speed + 1; p.alpha -= p.decay;
+if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+cCtx.save(); cCtx.globalAlpha = p.alpha; cCtx.fillStyle = p.color; cCtx.beginPath(); cCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2); cCtx.fill(); cCtx.restore();
+}
+requestAnimationFrame(animConf);
+}
+animConf();
+</script>
+
+</body>
+</html>
